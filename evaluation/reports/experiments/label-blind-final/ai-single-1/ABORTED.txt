@@ -1,0 +1,1 @@
+Not a valid result: 16/17 model calls failed (failure rate 0.941, p50 32 ms, so Ollama was not answering). Run stopped by the user on 2026-10-18 to test the app.

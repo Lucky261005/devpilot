@@ -1,0 +1,38 @@
+# Evaluation report — 2026-10-17T15:32:36Z
+
+Dataset `v1`: 17 cases (13 with seeded defects, 4 clean). All cases are synthetic.
+
+Environment: Python 3.12.2, Windows-11-10.0.26200-SP0, analyzers {'ruff': '0.17.1', 'bandit': '1.9.4'}. Match tolerance ±2 lines.
+
+System prompt: production (app/ai/context.py) (sha256 5c21f3eb540ed09c). Strategy: single. Label-blind: yes.
+
+| Config | Status | Precision | Recall | TP | FP | FN | Dup | Clean-case FP rate | Severity match | Valid citations | p50 latency (ms) | Cost/review (USD) | Failure rate |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| static | completed | 1.0 | 0.538 | 7 | 0 | 6 | 0 | 0.0 | 0.714 | — | 1000 | — | 0.0 |
+
+p95 latency is omitted below 20 observations.
+
+## Per-case results
+
+### static
+
+| Case | Expected | TP | FP | FN | Predictions |
+|---|---|---|---|---|---|
+| boundary-discount-threshold | 1 | 0 | 0 | 1 | — |
+| boundary-pagination-drops-last-page | 1 | 0 | 0 | 1 | — |
+| boundary-last-index | 1 | 0 | 0 | 1 | — |
+| errors-bare-except-swallows | 1 | 1 | 0 | 0 | E722@app/config.py:8 |
+| errors-lost-exception-context | 1 | 1 | 0 | 0 | B904@app/fetch.py:9 |
+| resource-file-not-closed | 1 | 0 | 0 | 1 | — |
+| resource-connection-leak-on-error | 1 | 0 | 0 | 1 | — |
+| logic-inverted-permission | 1 | 0 | 0 | 1 | — |
+| logic-mutable-default | 1 | 1 | 0 | 0 | B006@cart.py:5 |
+| security-shell-injection | 1 | 1 | 0 | 0 | B602@tools/report.py:9 |
+| security-sql-fstring | 1 | 1 | 0 | 0 | B608@repo/users.py:6 |
+| security-yaml-load | 1 | 1 | 0 | 0 | B506@cfg.py:11 |
+| security-tls-verify-off | 1 | 1 | 0 | 0 | B501@client.py:5 |
+| clean-rename-variable | 0 | 0 | 0 | 0 | — |
+| clean-add-typed-helper | 0 | 0 | 0 | 0 | — |
+| clean-context-manager-refactor | 0 | 0 | 0 | 0 | — |
+| clean-safe-subprocess | 0 | 0 | 0 | 0 | — |
+

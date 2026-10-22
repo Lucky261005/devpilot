@@ -1,0 +1,16 @@
+ai-1: start 2026-10-17T14:03:49Z
+ABORTED: gpu throttled (<=400 MHz at >=90% util for 30 s)
+ai-1: end 2026-10-17T14:11:08Z (aborted)
+stopping all remaining runs
+ai-1: start 2026-10-17T14:18:47Z
+ai-1: end 2026-10-17T14:25:12Z 
+ai-2: start 2026-10-17T14:31:00Z
+ai-2: end 2026-10-17T14:35:25Z 
+ai-3: start 2026-10-17T14:43:03Z
+ai-3: end 2026-10-17T14:47:28Z 
+combined-1: start 2026-10-17T14:57:36Z
+combined-1: end 2026-10-17T15:03:49Z 
+combined-2: start 2026-10-17T15:06:13Z
+combined-2: end 2026-10-17T15:11:14Z 
+combined-3: start 2026-10-17T15:13:55Z
+combined-3: end 2026-10-17T15:20:19Z 

@@ -1,0 +1,1257 @@
+{
+  "cases": [
+    {
+      "case_id": "boundary-discount-threshold",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-56871dc5",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 559,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 481,
+          "latency_ms": 2015,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2358,
+          "prepare_ms": 202,
+          "static_ms": 875,
+          "total_ms": 3452
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-pagination-drops-last-page",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-c052e735",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 535,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 468,
+          "latency_ms": 1639,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1875,
+          "prepare_ms": 202,
+          "static_ms": 797,
+          "total_ms": 2921
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-last-index",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "devpilot-ast",
+          "analyzer_version": "1.0",
+          "category": "bug",
+          "confidence": "high",
+          "description": "`xs[len(xs)]` reads one past the last element; it raises IndexError for lists, tuples and strings. The last element is at len(...) - 1.",
+          "end_line": 6,
+          "evidence": "    return xs[len(xs)]",
+          "path": "util/seq.py",
+          "rule_id": "DP001",
+          "severity": "high",
+          "source": "static",
+          "start_line": 6,
+          "title": "DP001: index-equals-length"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-78b5f302",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 595,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 487,
+          "latency_ms": 1686,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 26,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 1920,
+          "prepare_ms": 218,
+          "static_ms": 781,
+          "total_ms": 2968
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-bare-except-swallows",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "error_handling",
+          "confidence": "high",
+          "description": "Do not use bare `except`",
+          "end_line": 8,
+          "evidence": "    except:",
+          "path": "app/config.py",
+          "rule_id": "E722",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 8,
+          "title": "E722: bare-except"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-b28efa18",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 567,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 475,
+          "latency_ms": 1797,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2031,
+          "prepare_ms": 218,
+          "static_ms": 797,
+          "total_ms": 3077
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-lost-exception-context",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "bug",
+          "confidence": "high",
+          "description": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+          "end_line": 9,
+          "evidence": "        raise ParseError(\"bad number\")",
+          "path": "app/fetch.py",
+          "rule_id": "B904",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 9,
+          "title": "B904: raise-without-from-inside-except"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-a57ed177",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 705,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 508,
+          "latency_ms": 1922,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2156,
+          "prepare_ms": 203,
+          "static_ms": 782,
+          "total_ms": 3172
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-file-not-closed",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "resource",
+          "confidence": "high",
+          "description": "Use a context manager for opening files",
+          "end_line": 7,
+          "evidence": "    f = open(path, \"rb\")",
+          "path": "io_utils.py",
+          "rule_id": "SIM115",
+          "severity": "low",
+          "source": "static",
+          "start_line": 7,
+          "title": "SIM115: open-file-with-context-handler"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-dedad3a3",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 575,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 479,
+          "latency_ms": 1844,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2108,
+          "prepare_ms": 296,
+          "static_ms": 922,
+          "total_ms": 3375
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-connection-leak-on-error",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-5173f4d7",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 610,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 500,
+          "latency_ms": 1891,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2157,
+          "prepare_ms": 219,
+          "static_ms": 922,
+          "total_ms": 3328
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-inverted-permission",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-1c1d2f22",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 464,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 438,
+          "latency_ms": 1516,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1797,
+          "prepare_ms": 235,
+          "static_ms": 938,
+          "total_ms": 3000
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-mutable-default",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "bug",
+          "confidence": "high",
+          "description": "Do not use mutable data structures for argument defaults",
+          "end_line": 5,
+          "evidence": "def add_item(item, cart=[]):",
+          "path": "cart.py",
+          "rule_id": "B006",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 5,
+          "title": "B006: mutable-argument-default"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-cc98d9b5",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 537,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 464,
+          "latency_ms": 1702,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2000,
+          "prepare_ms": 250,
+          "static_ms": 952,
+          "total_ms": 3250
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-shell-injection",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "bandit",
+          "analyzer_version": "1.9.4",
+          "category": "security",
+          "confidence": "high",
+          "description": "subprocess call with shell=True identified, security issue. (CWE-78)",
+          "end_line": 9,
+          "evidence": "    return subprocess.call(\"git archive \" + branch, shell=True)",
+          "path": "tools/report.py",
+          "rule_id": "B602",
+          "severity": "high",
+          "source": "static",
+          "start_line": 9,
+          "title": "B602: subprocess_popen_with_shell_equals_true"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-e9d7b76e",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 665,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 493,
+          "latency_ms": 1750,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 26,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2032,
+          "prepare_ms": 233,
+          "static_ms": 968,
+          "total_ms": 3266
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-sql-fstring",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "bandit",
+          "analyzer_version": "1.9.4",
+          "category": "security",
+          "confidence": "medium",
+          "description": "Possible SQL injection vector through string-based query construction. (CWE-89)",
+          "end_line": 6,
+          "evidence": "    return conn.execute(f\"select * from users where name = '{name}'\").fetchall()",
+          "path": "repo/users.py",
+          "rule_id": "B608",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 6,
+          "title": "B608: hardcoded_sql_expressions"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-467c44c9",
+      "stats": {
+        "ai": {
+          "accepted": 1,
+          "attempts": 1,
+          "context_chars": 653,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 490,
+          "latency_ms": 13063,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 424,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 1,
+          "status": "completed",
+          "summary": "Potential SQL injection vulnerability in `by_name` function"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 1,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 13344,
+          "prepare_ms": 250,
+          "static_ms": 983,
+          "total_ms": 14625
+        }
+      },
+      "test_suggestions": 2,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-yaml-load",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "bandit",
+          "analyzer_version": "1.9.4",
+          "category": "security",
+          "confidence": "high",
+          "description": "Use of unsafe yaml load. Allows instantiation of arbitrary objects. Consider yaml.safe_load(). (CWE-20)",
+          "end_line": 11,
+          "evidence": "    return yaml.load(s, Loader=yaml.Loader)",
+          "path": "cfg.py",
+          "rule_id": "B506",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 11,
+          "title": "B506: yaml_load"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-6eadf032",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 654,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 509,
+          "latency_ms": 1875,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 26,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 2125,
+          "prepare_ms": 233,
+          "static_ms": 922,
+          "total_ms": 3312
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-tls-verify-off",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "bandit",
+          "analyzer_version": "1.9.4",
+          "category": "security",
+          "confidence": "high",
+          "description": "Call to requests with verify=False disabling SSL certificate checks, security issue. (CWE-295)",
+          "end_line": 5,
+          "evidence": "    return requests.get(url, timeout=5, verify=False).ok",
+          "path": "client.py",
+          "rule_id": "B501",
+          "severity": "high",
+          "source": "static",
+          "start_line": 5,
+          "title": "B501: request_with_no_cert_validation"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-d6dc95d9",
+      "stats": {
+        "ai": {
+          "accepted": 1,
+          "attempts": 1,
+          "context_chars": 554,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 461,
+          "latency_ms": 12468,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 426,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 1,
+          "status": "completed",
+          "summary": "Security issue: Insecure use of verify=False in requests.get"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 1,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 12733,
+          "prepare_ms": 218,
+          "static_ms": 952,
+          "total_ms": 13921
+        }
+      },
+      "test_suggestions": 2,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-rename-variable",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-017b5a4d",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 410,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 426,
+          "latency_ms": 1514,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1795,
+          "prepare_ms": 233,
+          "static_ms": 1000,
+          "total_ms": 3077
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-add-typed-helper",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-a0775af1",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 524,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 458,
+          "latency_ms": 1813,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2093,
+          "prepare_ms": 234,
+          "static_ms": 922,
+          "total_ms": 3297
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-context-manager-refactor",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-71bdfc37",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 407,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 421,
+          "latency_ms": 1436,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1702,
+          "prepare_ms": 250,
+          "static_ms": 938,
+          "total_ms": 2922
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-safe-subprocess",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-38cdb9a2",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 621,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 486,
+          "latency_ms": 1891,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "provider": "ollama",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2172,
+          "prepare_ms": 250,
+          "static_ms": 905,
+          "total_ms": 3375
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    }
+  ],
+  "dataset": "v1",
+  "format": "devpilot-run-details/1",
+  "jobs": 17,
+  "source_db": "eval.db"
+}

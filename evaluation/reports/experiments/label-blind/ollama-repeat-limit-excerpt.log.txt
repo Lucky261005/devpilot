@@ -1,0 +1,28 @@
+# Excerpt of the Ollama debug log (D:\ollama\server.log) for the HTTP 500 diagnosis.
+# Lines containing 'token repeat limit' and every HTTP 500 response to /api/chat, in order.
+# Extracted 2026-10-17; timestamps are local time (UTC+05:30).
+# 10 repeat-limit aborts, each followed by an HTTP 500 (6 in v3 repeats, 3 in label-blind combined-two,
+# 1 in label-blind-static-v2 combined-two). The extra 500 at 20:47:07 (2m0s) is the 120 s client
+# timeout recorded in v3 repeats combined-3, not a repeat-limit abort.
+
+time=2026-10-17T19:52:26.425+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 19:52:26 | 500 |    8.9528606s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T20:02:28.194+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 20:02:28 | 500 |       9.2281s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T20:14:31.038+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 20:14:31 | 500 |     9.234162s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T20:31:00.118+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 20:31:00 | 500 |    9.6532262s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T20:38:18.687+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 20:38:18 | 500 |    10.755262s |       127.0.0.1 | POST     "/api/chat"
+[GIN] 2026/10/17 - 20:47:07 | 500 |          2m0s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T20:47:35.599+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 20:47:35 | 500 |    9.5367371s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T21:41:10.176+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 21:41:10 | 500 |    9.2677628s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T21:47:54.181+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 21:47:54 | 500 |    9.1070453s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T21:54:24.577+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 21:54:24 | 500 |    9.1746133s |       127.0.0.1 | POST     "/api/chat"
+time=2026-10-17T23:22:59.779+05:30 level=DEBUG source=llama_server.go:1830 msg="prediction aborted, token repeat limit 
+[GIN] 2026/10/17 - 23:22:59 | 500 |     9.429295s |       127.0.0.1 | POST     "/api/chat"

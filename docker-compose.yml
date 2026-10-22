@@ -1,0 +1,45 @@
+# Local stack: PostgreSQL, API, a separate review worker, and the web UI on http://localhost:8080
+# Usage: cp .env.example .env  (set DEVPILOT_SECRET_KEY), then: docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: devpilot
+      POSTGRES_PASSWORD: devpilot
+      POSTGRES_DB: devpilot
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devpilot"]
+      interval: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment: &backend_env
+      DEVPILOT_ENV: production
+      DEVPILOT_DATABASE_URL: postgresql+psycopg://devpilot:devpilot@db:5432/devpilot
+      DEVPILOT_RUN_WORKER_IN_PROCESS: "false"
+      DEVPILOT_DATA_DIR: /data  # must be the shared volume; overrides .env
+      DEVPILOT_FRONTEND_ORIGIN: http://localhost:8080
+    volumes: [snapshots:/data]
+    depends_on:
+      db: { condition: service_healthy }
+
+  worker:
+    build: ./backend
+    env_file: .env
+    environment: *backend_env
+    command: ["python", "-m", "app.workers.queue"]
+    volumes: [snapshots:/data]
+    depends_on:
+      backend: { condition: service_started }
+
+  frontend:
+    build: ./frontend
+    ports: ["8080:80"]
+    depends_on: [backend]
+
+volumes:
+  pgdata:
+  snapshots:

@@ -1,0 +1,836 @@
+{
+  "cases": [
+    {
+      "case_id": "boundary-discount-threshold",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-boundary-discount-threshold",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 576,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1341,
+          "latency_ms": 115452,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 379,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 117483,
+          "prepare_ms": 625,
+          "static_ms": 0,
+          "total_ms": 118155
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-pagination-drops-last-page",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-boundary-pagination-drops-last-page",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 560,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1358,
+          "latency_ms": 14266,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 420,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 14483,
+          "prepare_ms": 202,
+          "static_ms": 0,
+          "total_ms": 14734
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-last-index",
+      "config": "ai",
+      "findings": [
+        {
+          "analyzer": "llm:qwen2.5-coder:3b",
+          "analyzer_version": "qwen2.5-coder:3b",
+          "category": "logic",
+          "confidence": "high",
+          "description": "The function `last` does not handle the case where the input list `xs` is empty.",
+          "end_line": 6,
+          "evidence": "def last(xs):\n    return xs[len(xs)]",
+          "path": "util/seq.py",
+          "rule_id": null,
+          "severity": "medium",
+          "source": "ai",
+          "start_line": 5,
+          "title": "Boundary error in `last` function"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-boundary-last-index",
+      "stats": {
+        "ai": {
+          "accepted": 1,
+          "attempts": 2,
+          "context_chars": 438,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1064,
+          "latency_ms": 14077,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 442,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 1,
+          "status": "completed",
+          "summary": "Boundary error in `last` function"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 1,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 14311,
+          "prepare_ms": 250,
+          "static_ms": 0,
+          "total_ms": 14593
+        }
+      },
+      "test_suggestions": 2,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-bare-except-swallows",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-errors-bare-except-swallows",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 536,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1370,
+          "latency_ms": 15452,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 452,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 15686,
+          "prepare_ms": 250,
+          "static_ms": 0,
+          "total_ms": 15968
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-lost-exception-context",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-errors-lost-exception-context",
+      "stats": {
+        "ai": {
+          "attempts": 1,
+          "context_chars": 553,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": null,
+          "latency_ms": 8952,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": null,
+          "provider": "ollama-two-step",
+          "reason": "analysis step failed: HTTP 500",
+          "status": "failed"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 9186,
+          "prepare_ms": 250,
+          "static_ms": 0,
+          "total_ms": 9468
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-file-not-closed",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-resource-file-not-closed",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 526,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1424,
+          "latency_ms": 16922,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 500,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 17156,
+          "prepare_ms": 218,
+          "static_ms": 0,
+          "total_ms": 17422
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-connection-leak-on-error",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-resource-connection-leak-on-error",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 633,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1267,
+          "latency_ms": 10359,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 267,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 10657,
+          "prepare_ms": 219,
+          "static_ms": 0,
+          "total_ms": 10891
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-inverted-permission",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-logic-inverted-permission",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 479,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1237,
+          "latency_ms": 12671,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 368,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 12937,
+          "prepare_ms": 266,
+          "static_ms": 0,
+          "total_ms": 13233
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-mutable-default",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-logic-mutable-default",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 474,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1161,
+          "latency_ms": 10172,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 275,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 10406,
+          "prepare_ms": 233,
+          "static_ms": 0,
+          "total_ms": 10670
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-shell-injection",
+      "config": "ai",
+      "findings": [
+        {
+          "analyzer": "llm:qwen2.5-coder:3b",
+          "analyzer_version": "qwen2.5-coder:3b",
+          "category": "security",
+          "confidence": "high",
+          "description": "The function `archive` uses `subprocess.call` with `shell=True`, which can lead to shell injection if the `branch` parameter is not properly sanitized.",
+          "end_line": 9,
+          "evidence": "def archive(branch):\n    return subprocess.call(\"git archive \" + branch, shell=True)",
+          "path": "tools/report.py",
+          "rule_id": null,
+          "severity": "high",
+          "source": "ai",
+          "start_line": 8,
+          "title": "Shell injection vulnerability in `archive` function"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-security-shell-injection",
+      "stats": {
+        "ai": {
+          "accepted": 1,
+          "attempts": 2,
+          "context_chars": 583,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1392,
+          "latency_ms": 23719,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 763,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 1,
+          "status": "completed",
+          "summary": "Shell injection vulnerability in `archive` function"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 1,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 23953,
+          "prepare_ms": 217,
+          "static_ms": 0,
+          "total_ms": 24217
+        }
+      },
+      "test_suggestions": 2,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-sql-fstring",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-security-sql-fstring",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 558,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1302,
+          "latency_ms": 14750,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 382,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 15000,
+          "prepare_ms": 217,
+          "static_ms": 0,
+          "total_ms": 15265
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-yaml-load",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-security-yaml-load",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 539,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1275,
+          "latency_ms": 11984,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 334,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 12218,
+          "prepare_ms": 265,
+          "static_ms": 0,
+          "total_ms": 12515
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-tls-verify-off",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-security-tls-verify-off",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 451,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1161,
+          "latency_ms": 10812,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 306,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 11046,
+          "prepare_ms": 204,
+          "static_ms": 0,
+          "total_ms": 11297
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-rename-variable",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-clean-rename-variable",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 421,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1171,
+          "latency_ms": 11281,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 325,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 11531,
+          "prepare_ms": 217,
+          "static_ms": 0,
+          "total_ms": 11765
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-add-typed-helper",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-clean-add-typed-helper",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 536,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1251,
+          "latency_ms": 11969,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 335,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 12235,
+          "prepare_ms": 235,
+          "static_ms": 0,
+          "total_ms": 12485
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-context-manager-refactor",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-clean-context-manager-refactor",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 427,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1134,
+          "latency_ms": 10531,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 299,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 10781,
+          "prepare_ms": 233,
+          "static_ms": 0,
+          "total_ms": 11031
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-safe-subprocess",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "ai-clean-safe-subprocess",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 632,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1329,
+          "latency_ms": 12890,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 359,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 13140,
+          "prepare_ms": 233,
+          "static_ms": 0,
+          "total_ms": 13406
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    }
+  ],
+  "dataset": "v1",
+  "format": "devpilot-run-details/1",
+  "jobs": 17,
+  "source_db": "eval.db"
+}

@@ -1,0 +1,267 @@
+{
+  "cases": [
+    {
+      "case_id": "boundary-discount-threshold",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "combined-boundary-discount-threshold",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 582,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1329,
+          "latency_ms": 124217,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 367,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 125125,
+          "prepare_ms": 532,
+          "static_ms": 2172,
+          "total_ms": 127891
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-pagination-drops-last-page",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "combined-boundary-pagination-drops-last-page",
+      "stats": {
+        "ai": {
+          "attempts": 1,
+          "context_chars": 566,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": null,
+          "latency_ms": 120015,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": null,
+          "provider": "ollama-two-step",
+          "reason": "analysis step failed: timed out",
+          "status": "failed"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 120672,
+          "prepare_ms": 921,
+          "static_ms": 2031,
+          "total_ms": 123718
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-last-index",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "combined-boundary-last-index",
+      "stats": {
+        "ai": {
+          "attempts": 2,
+          "context_chars": 444,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 385,
+          "latency_ms": 209108,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 378,
+          "provider": "ollama-two-step",
+          "reason": "Ollama timed out after 120.0s",
+          "status": "failed"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 210016,
+          "prepare_ms": 858,
+          "static_ms": 2844,
+          "total_ms": 213766
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-bare-except-swallows",
+      "config": "combined",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "error_handling",
+          "confidence": "high",
+          "description": "Do not use bare `except`",
+          "end_line": 8,
+          "evidence": "    except:",
+          "path": "app/config.py",
+          "rule_id": "E722",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 8,
+          "title": "E722: bare-except"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "combined-errors-bare-except-swallows",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 2,
+          "context_chars": 590,
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 1332,
+          "latency_ms": 99405,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 378,
+          "provider": "ollama-two-step",
+          "rejected": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code."
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "ai_ms": 100061,
+          "prepare_ms": 765,
+          "static_ms": 2264,
+          "total_ms": 103170
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-lost-exception-context",
+      "config": "combined",
+      "findings": [],
+      "job_error": null,
+      "job_status": "running",
+      "kind": "diff",
+      "label_blind": false,
+      "repo_name": "combined-errors-lost-exception-context",
+      "stats": {},
+      "test_suggestions": 0,
+      "use_ai": true
+    }
+  ],
+  "dataset": "v1",
+  "format": "devpilot-run-details/1",
+  "jobs": 5,
+  "source_db": "combined-aborted-eval.db"
+}

@@ -1,0 +1,33 @@
+.env
+*.db
+backend/data/
+backend/.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+*.tsbuildinfo
+evaluation/reports/*.tmp
+e2e.db
+e2e-data/
+
+# SQLite journals (application and evaluation databases are already ignored by *.db)
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Evaluation: per-run console logs duplicate latest.md and can contain local paths.
+# Kept: latest.json, <stamp>.json, details.json, latest.md, gpu.csv, runner.log, ABORTED.txt.
+evaluation/reports/**/run.log
+evaluation/reports/**/*-run.log
+
+# Personal working notes and local AI-tool settings (machine-specific)
+CONTEXT.md
+.claude/
+
+# awwwards QA screenshots (regenerated)
+.shots/

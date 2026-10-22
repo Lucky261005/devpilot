@@ -1,0 +1,429 @@
+{
+  "run_at": "2026-10-17T09:01:04Z",
+  "dataset": "v1",
+  "n_cases": 17,
+  "n_defect_cases": 13,
+  "n_clean_cases": 4,
+  "match_tolerance_lines": 2,
+  "env": {
+    "python": "3.12.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "analyzers": {
+      "ruff": "0.17.1",
+      "bandit": "1.9.4"
+    }
+  },
+  "configs": [
+    {
+      "config": "static",
+      "status": "completed",
+      "model": null,
+      "cases": 17,
+      "metrics": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 6,
+        "duplicates": 0,
+        "precision": 1.0,
+        "recall": 0.538,
+        "clean_case_false_positive_rate": 0.0,
+        "duplicate_rate": 0.0,
+        "severity_exact_match": 0.714,
+        "valid_citation_rate": null,
+        "useful_findings_per_review": 0.412,
+        "latency_ms_p50": 1092,
+        "latency_ms_p95": null,
+        "mean_input_tokens": null,
+        "mean_output_tokens": null,
+        "mean_cost_usd_per_review": null,
+        "failure_rate": 0.0,
+        "timeout_rate": 0.0
+      },
+      "per_case": [
+        {
+          "id": "boundary-discount-threshold",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1563,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "boundary-pagination-drops-last-page",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1234,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "boundary-last-index",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1046,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "errors-bare-except-swallows",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1000,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "app/config.py",
+              "start_line": 8,
+              "end_line": 8,
+              "severity": "medium",
+              "source": "static",
+              "title": "E722: bare-except",
+              "rule_id": "E722"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 1,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "errors-lost-exception-context",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1061,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "app/fetch.py",
+              "start_line": 9,
+              "end_line": 9,
+              "severity": "medium",
+              "source": "static",
+              "title": "B904: raise-without-from-inside-except",
+              "rule_id": "B904"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "resource-file-not-closed",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1047,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "resource-connection-leak-on-error",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1077,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "logic-inverted-permission",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1061,
+          "expected": 1,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 1,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "logic-mutable-default",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1093,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "cart.py",
+              "start_line": 5,
+              "end_line": 5,
+              "severity": "medium",
+              "source": "static",
+              "title": "B006: mutable-argument-default",
+              "rule_id": "B006"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 1,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "security-shell-injection",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1092,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "tools/report.py",
+              "start_line": 9,
+              "end_line": 9,
+              "severity": "high",
+              "source": "static",
+              "title": "B602: subprocess_popen_with_shell_equals_true",
+              "rule_id": "B602"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 1,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "security-sql-fstring",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1092,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "repo/users.py",
+              "start_line": 6,
+              "end_line": 6,
+              "severity": "medium",
+              "source": "static",
+              "title": "B608: hardcoded_sql_expressions",
+              "rule_id": "B608"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "security-yaml-load",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1078,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "cfg.py",
+              "start_line": 11,
+              "end_line": 11,
+              "severity": "medium",
+              "source": "static",
+              "title": "B506: yaml_load",
+              "rule_id": "B506"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 1,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "security-tls-verify-off",
+          "label": "synthetic",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1125,
+          "expected": 1,
+          "predictions": [
+            {
+              "path": "client.py",
+              "start_line": 5,
+              "end_line": 5,
+              "severity": "high",
+              "source": "static",
+              "title": "B501: request_with_no_cert_validation",
+              "rule_id": "B501"
+            }
+          ],
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 1,
+          "matched_ids": [
+            0
+          ]
+        },
+        {
+          "id": "clean-rename-variable",
+          "label": "synthetic-clean",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1156,
+          "expected": 0,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "clean-add-typed-helper",
+          "label": "synthetic-clean",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1093,
+          "expected": 0,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "clean-context-manager-refactor",
+          "label": "synthetic-clean",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1141,
+          "expected": 0,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        },
+        {
+          "id": "clean-safe-subprocess",
+          "label": "synthetic-clean",
+          "status": "completed",
+          "error": null,
+          "ai_status": "not_requested",
+          "ai_reason": null,
+          "latency_ms": 1079,
+          "expected": 0,
+          "predictions": [],
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "duplicates": 0,
+          "severity_exact": 0,
+          "matched_ids": []
+        }
+      ]
+    },
+    {
+      "config": "ai",
+      "status": "not_run",
+      "reason": "ANTHROPIC_API_KEY is not set"
+    },
+    {
+      "config": "combined",
+      "status": "not_run",
+      "reason": "ANTHROPIC_API_KEY is not set"
+    }
+  ]
+}

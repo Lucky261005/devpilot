@@ -1,0 +1,974 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Design tokens. Raw values live on :root / [data-theme='dark']; @theme maps them to Tailwind
+ * utilities (bg-panel, text-muted, text-danger, bg-warn-soft, ...). Spacing uses Tailwind's 4px
+ * scale; components only use multiples of 4px.
+ */
+@theme {
+  --font-sans:
+    'Inter', 'Segoe UI Variable Text', 'Segoe UI', ui-sans-serif, system-ui, -apple-system,
+    sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', ui-monospace, Consolas, monospace;
+
+  /* Type scale */
+  --text-display: clamp(1.75rem, 1.25rem + 1.6vw, 2.375rem); /* 28px mobile -> 38px desktop */
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.025em;
+  --text-display--font-weight: 650;
+  --text-title: 1.375rem; /* 22px section headings */
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.015em;
+  --text-body: 0.9375rem; /* 15px */
+  --text-body--line-height: 1.6;
+  --text-label: 0.75rem; /* 12px uppercase labels */
+  --text-label--line-height: 1.4;
+  --text-label--letter-spacing: 0.06em;
+
+  /* Surfaces and text */
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+
+  /* Brand */
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+
+  /* Semantic */
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-ai: var(--ai);
+  --color-ai-soft: var(--ai-soft);
+
+  /* Code */
+  --color-hl: var(--hl);
+  --color-add: var(--add);
+  --color-del: var(--del);
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --shadow-card: var(--card-shadow);
+  --shadow-pop: var(--pop-shadow);
+}
+
+:root {
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --subtle: #f1f3f6;
+  --line: #e4e7ec;
+  --line-strong: #cfd5de;
+  --fg: #0e131b;
+  --muted: #535d6c;
+  --faint: #7a8493;
+  --accent: #3451d1;
+  --accent-fg: #ffffff;
+  --accent-soft: #eef1fd;
+  --ok: #157f4a;
+  --ok-soft: #e8f6ee;
+  --warn: #a0580a;
+  --warn-soft: #fdf3e4;
+  --danger: #c0262d;
+  --danger-soft: #fdecec;
+  --info: #1c6aa8;
+  --info-soft: #e8f2fb;
+  --ai: #6d3fd1;
+  --ai-soft: #f3eefd;
+  --hl: #fff2c2;
+  --add: #e7f6ec;
+  --del: #fdecec;
+  --card-shadow: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.04);
+  --pop-shadow: 0 8px 24px rgb(16 24 40 / 0.1);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #090b10;
+  --panel: #10141c;
+  --subtle: #151b26;
+  --line: #242d3b;
+  --line-strong: #33405a;
+  --fg: #edf2fa;
+  --muted: #98a5b8;
+  --faint: #667389;
+  --accent: #8b9cff;
+  --accent-fg: #090b10;
+  --accent-soft: #1a2142;
+  --ok: #4ade80;
+  --ok-soft: #10261b;
+  --warn: #fbbf24;
+  --warn-soft: #2a1d0b;
+  --danger: #fb7185;
+  --danger-soft: #2c1215;
+  --info: #67c8ff;
+  --info-soft: #0f2133;
+  --ai: #b39bff;
+  --ai-soft: #1e1736;
+  --hl: #3a3218;
+  --add: #12291b;
+  --del: #331719;
+  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 1px 2px rgb(0 0 0 / 0.3);
+  --pop-shadow: 0 12px 32px rgb(0 0 0 / 0.45);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* One focus ring for every control, visible on both themes. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* Code must show the exact characters: no ligatures turning >= into a single glyph. */
+.font-mono,
+code,
+pre {
+  font-variant-ligatures: none;
+  font-feature-settings:
+    'liga' 0,
+    'calt' 0;
+}
+
+/* Instant press feedback on pointer-down for every button, link-button and chip. */
+button,
+a[href] {
+  transition:
+    transform 100ms ease-out,
+    background-color 150ms ease-out,
+    border-color 150ms ease-out,
+    color 150ms ease-out;
+}
+button:not(:disabled):active,
+a[href]:active {
+  transform: scale(0.98);
+}
+
+/* Translucent, sticky app bar: content scrolls underneath it. */
+.app-bar {
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  button:active,
+  a[href]:active {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app-bar {
+    background: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --line: #8a8f99;
+    --muted: #3d424b;
+  }
+  :root[data-theme='dark'] {
+    --line: #6b7280;
+    --muted: #c4c9d2;
+  }
+}
+
+/*
+ * Login hero (components/HeroScene.tsx). Always dark, whatever the app theme. Ambient loops are
+ * linear and slow; entrances use the strong ease-out. Reduced motion shows the finished frame.
+ */
+.hero {
+  --hero-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgb(237 242 250 / 0.5), transparent),
+    radial-gradient(1px 1px at 34% 72%, rgb(237 242 250 / 0.35), transparent),
+    radial-gradient(1px 1px at 58% 12%, rgb(237 242 250 / 0.4), transparent),
+    radial-gradient(1px 1px at 76% 44%, rgb(237 242 250 / 0.3), transparent),
+    radial-gradient(1px 1px at 88% 82%, rgb(237 242 250 / 0.45), transparent),
+    radial-gradient(1px 1px at 22% 52%, rgb(237 242 250 / 0.25), transparent),
+    radial-gradient(1px 1px at 66% 90%, rgb(237 242 250 / 0.3), transparent), #090b10;
+}
+/* Horizon: the edge of a large dark sphere lit from behind, as in orbital photography. */
+.hero::after {
+  content: '';
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: 78%;
+  height: 160%;
+  border-radius: 50%;
+  background: #0c0f16;
+  box-shadow:
+    0 -1px 0 rgb(165 177 255 / 0.35),
+    0 -24px 80px -20px rgb(139 156 255 / 0.25);
+  pointer-events: none;
+}
+
+.hero-rise {
+  animation: hero-rise 700ms var(--hero-ease-out) both;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes lp-rise {
+  from {
+    transform: translateY(14px);
+  }
+}
+.lp .hero-rise {
+  animation-name: lp-rise;
+}
+
+.hero-stage {
+  perspective: 1400px;
+  animation: hero-rise 900ms var(--hero-ease-out) 200ms both;
+}
+.hero-svg {
+  width: 100%;
+  height: auto;
+  transform: rotateY(-16deg) rotateX(6deg) rotateZ(-3deg);
+}
+.hero-frame {
+  fill: rgb(16 20 28 / 0.7);
+  stroke: rgb(139 156 255 / 0.45);
+}
+.hero-wire {
+  stroke: rgb(139 156 255 / 0.3);
+}
+.hero-code {
+  fill: rgb(139 156 255 / 0.1);
+  stroke: rgb(139 156 255 / 0.4);
+  stroke-width: 0.75;
+}
+.hero-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.hero-dim {
+  fill: #98a5b8;
+}
+.hero-faint {
+  fill: #667389;
+}
+
+.hero-beam {
+  animation: hero-scan 4.8s linear infinite; /* duration = SCAN_S in HeroScene.tsx */
+}
+@keyframes hero-scan {
+  to {
+    transform: translateY(364px); /* H - TOP */
+  }
+}
+
+.hero-mark {
+  opacity: 0;
+  animation: hero-flag 4.8s linear infinite;
+}
+@keyframes hero-flag {
+  0% {
+    opacity: 0;
+  }
+  4%,
+  72% {
+    opacity: 1;
+  }
+  84%,
+  100% {
+    opacity: 0;
+  }
+}
+.hero-danger {
+  --tone: #fb7185;
+}
+.hero-warn {
+  --tone: #fbbf24;
+}
+.hero-ok {
+  --tone: #4ade80;
+}
+.hero-muted {
+  --tone: #667389;
+}
+.hero-row {
+  fill: color-mix(in srgb, var(--tone) 8%, transparent);
+}
+.hero-hit {
+  fill: color-mix(in srgb, var(--tone) 22%, transparent);
+  stroke: var(--tone);
+  stroke-width: 0.75;
+}
+.hero-muted .hero-hit {
+  stroke-dasharray: 3 3;
+}
+.hero-dot {
+  fill: var(--tone);
+}
+.hero-label {
+  fill: var(--tone);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-stage,
+  .hero-mark {
+    animation: none;
+    opacity: 1;
+  }
+  .hero-beam {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Shell motion: the nav indicator glides between items; each page fades up once on navigation. */
+.nav-indicator {
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.page-enter {
+  animation: hero-rise 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter {
+    animation: none;
+  }
+}
+
+/* Staggered entrance for a few major blocks. Set --i (0, 1, 2…) inline; 50ms apart. */
+.rise-in {
+  animation: hero-rise 260ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+/* Import drop zone: the dashed border marches while a file is dragged over it. */
+.drop-zone {
+  background-image:
+    repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(0deg, var(--line-strong) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(0deg, var(--line-strong) 0 6px, transparent 6px 12px);
+  background-size:
+    100% 1px,
+    100% 1px,
+    1px 100%,
+    1px 100%;
+  background-position:
+    0 0,
+    0 100%,
+    0 0,
+    100% 0;
+  background-repeat: no-repeat;
+  transition: background-color 150ms ease;
+}
+.drop-zone[data-over] {
+  --line-strong: var(--accent);
+  background-color: var(--accent-soft);
+  animation: drop-march 600ms linear infinite;
+}
+@keyframes drop-march {
+  to {
+    background-position:
+      12px 0,
+      -12px 100%,
+      0 -12px,
+      100% 12px;
+  }
+}
+
+/* Loading placeholder for lists; same height as the real rows so nothing shifts. */
+.skeleton {
+  background: linear-gradient(90deg, var(--subtle) 0%, var(--line) 50%, var(--subtle) 100%);
+  background-size: 200% 100%;
+  animation: skeleton 1.4s linear infinite;
+  border-radius: 4px;
+}
+@keyframes skeleton {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .drop-zone[data-over],
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Review workspace. The selected finding's lines get a marker and settle from accent to the
+   highlight colour, so the eye lands on them after switching findings. */
+.code-hit {
+  box-shadow: inset 2px 0 var(--accent);
+  animation: code-hit 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes code-hit {
+  from {
+    background-color: var(--accent-soft);
+  }
+}
+
+/* Running review: an indeterminate sweep. No percentage, because the backend reports stages only. */
+.activity-bar {
+  position: relative;
+}
+.activity-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--accent);
+  animation: activity 1.4s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+@keyframes activity {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-hit,
+  .activity-bar::after {
+    animation: none;
+  }
+  .activity-bar::after {
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
+/* Dialogs fade and scale in from 0.96 and leave the same way (allow-discrete keeps the exit). */
+.dialog {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+.dialog:not([open]) {
+  opacity: 0;
+  transform: scale(0.96);
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.dialog::backdrop {
+  background: rgb(4 6 10 / 0.6);
+  transition:
+    opacity 200ms ease-out,
+    overlay 200ms allow-discrete,
+    display 200ms allow-discrete;
+}
+.dialog:not([open])::backdrop {
+  opacity: 0;
+}
+@starting-style {
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/*
+ * Front screen (pages/LoginPage.tsx, DESIGN.md). The page is a file under review: a ruled gutter
+ * on the left, a fixed scan line, and margin verdicts that snap in as blocks cross it.
+ */
+.lp {
+  --gut: 56px;
+  --pad: 40px;
+  --snap: cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lp::before {
+  /* the gutter: a hairline edge plus a tick every 28px line */
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gut);
+  border-right: 1px solid var(--line);
+  background: repeating-linear-gradient(
+      to bottom,
+      rgb(102 115 137 / 0.35) 0 1px,
+      transparent 1px 28px
+    )
+    right 0 top 0 / 10px 100% no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+.lp-frame {
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-left: calc(var(--gut) + var(--pad));
+  padding-right: var(--pad);
+}
+.lp-skip {
+  position: absolute;
+  left: calc(var(--gut) + 8px);
+  top: 8px;
+  z-index: 50;
+  transform: translateY(-200%);
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.lp-skip:focus {
+  transform: none;
+}
+
+/* The scan line follows the reader at 62% of the viewport (SCAN_AT in lib/scanLine.ts). */
+.lp-scan {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 62vh;
+  height: 1px;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    var(--accent) 0 var(--gut),
+    rgb(139 156 255 / 0.18) var(--gut)
+  );
+}
+.lp-scan-readout {
+  position: absolute;
+  left: 0;
+  width: var(--gut);
+  bottom: 4px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Type */
+.lp-display {
+  font-size: clamp(2.5rem, 1.5rem + 3.4vw, 4.25rem);
+  line-height: 0.96;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  margin-left: -0.04em; /* optical: cap C/M sidebearing */
+}
+.lp-h2 {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+  line-height: 1.08;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.lp-statement {
+  font-size: clamp(2rem, 1.1rem + 3.6vw, 4.25rem);
+  line-height: 1.02;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+.lp-num {
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  color: var(--fg);
+}
+
+/* Pipeline index */
+.lp-stage {
+  position: relative;
+}
+.lp-stage-name {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  transition:
+    translate 220ms var(--snap),
+    color 220ms var(--snap);
+}
+.lp-stage::before {
+  /* a lint tick in the gutter, set when the row has been scanned */
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--pad) - var(--gut) / 2 - 3px);
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent);
+  scale: 0;
+  transition: scale 220ms var(--snap);
+}
+.lp-stage.is-scanned::before {
+  scale: 1;
+}
+
+/* Claims */
+.lp-claim {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgb(16 20 28 / 0.8);
+  padding: 20px;
+  transition:
+    border-color 220ms var(--snap),
+    translate 220ms var(--snap);
+}
+.lp-claim-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--ai);
+}
+.lp-claim-body {
+  margin-top: 12px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.lp-claim-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  color: var(--accent);
+}
+.lp-code {
+  margin-top: 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 22px;
+  color: var(--muted);
+}
+.lp-ln {
+  display: inline-block;
+  width: 2.5ch;
+  margin-right: 12px;
+  color: var(--faint);
+  user-select: none;
+}
+
+/* Margin verdicts */
+.lp-margin {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.lp-verdict {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 16px;
+  border-left: 2px solid var(--tone);
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg);
+}
+.lp-verdict-code {
+  color: var(--tone);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lp-ok {
+  --tone: #4ade80;
+}
+.lp-danger {
+  --tone: #fb7185;
+}
+.lp-warn {
+  --tone: #fbbf24;
+}
+.lp-accent {
+  --tone: #8b9cff;
+}
+
+/* Hover voice: everything snaps toward the margin like a lint mark. */
+.lp-nav,
+.lp-link,
+.lp-cta-link {
+  position: relative;
+  padding-block: 4px;
+}
+.lp-nav::after,
+.lp-link::after,
+.lp-cta-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--accent);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 220ms var(--snap);
+}
+.lp-link::after,
+.lp-cta-link::after {
+  scale: 1 1; /* inline links keep an underline at rest */
+  opacity: 0.5;
+}
+.lp-cta-link {
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+.lp-cta {
+  transition:
+    box-shadow 220ms var(--snap),
+    transform 100ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .lp-nav:hover {
+    color: var(--fg);
+  }
+  .lp-nav:hover::after {
+    scale: 1 1;
+  }
+  .lp-cta:hover {
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .lp-stage:hover .lp-stage-name {
+    translate: 8px 0;
+    color: var(--accent);
+  }
+  .lp-claim:hover {
+    border-color: var(--line-strong);
+    translate: 0 -2px;
+  }
+}
+
+/* Motion is opt-in: without JS or with reduced motion every verdict is simply shown. */
+@media (prefers-reduced-motion: no-preference) {
+  .lp[data-scan] .lp-verdict {
+    clip-path: inset(0 100% 0 0);
+    translate: -8px 0;
+    transition:
+      clip-path 220ms var(--snap),
+      translate 220ms var(--snap);
+  }
+  .lp[data-scan] .lp-verdict.is-scanned {
+    clip-path: inset(0 0 0 0);
+    translate: 0 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .lp {
+    --gut: 28px;
+    --pad: 16px;
+  }
+  .lp-scan-readout {
+    font-size: 9px;
+  }
+}
+.lp {
+  overflow-x: clip;
+}
+.lp.hero::after {
+  /* keep the horizon behind the first screen only */
+  top: 74svh;
+  height: 26vh; /* only the rim; nothing large to paint below the first screen */
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+@media (max-width: 767px) {
+  .lp.hero::after {
+    left: -90%;
+    right: -90%;
+    top: 86svh;
+  }
+}
+.lp-logo-mark {
+  transition:
+    rotate 220ms var(--snap),
+    scale 220ms var(--snap);
+}
+@media (hover: hover) and (pointer: fine) {
+  .lp-logo:hover .lp-logo-mark {
+    rotate: -8deg;
+    scale: 1.08;
+  }
+}
+@media (max-width: 767px) {
+  /* Throttled phones spend seconds painting a huge blurred glow; a hairline rim reads the same. */
+  .lp.hero::after {
+    box-shadow: 0 -1px 0 rgb(165 177 255 / 0.35);
+  }
+  .lp form {
+    backdrop-filter: none;
+  }
+}
+@media (max-width: 767px) {
+  .lp .hero-rise {
+    animation: none;
+  }
+}
+
+.lp-link::before,
+.lp-cta-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--accent);
+  scale: 0 1;
+  transform-origin: left;
+  transition: scale 260ms var(--snap);
+  z-index: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .lp-link:hover::before,
+  .lp-cta-link:hover::before {
+    scale: 1 1;
+  }
+  .lp-cta-link:hover {
+    translate: 6px 0;
+  }
+}
+.lp-cta-link {
+  transition: translate 220ms var(--snap);
+}
+.lp-stage .lp-verdict {
+  margin-top: 4px;
+}
+
+/* Logo (components/Logo.tsx): the scan bar sweeps the file once, then the check draws. */
+.logo-frame {
+  fill: color-mix(in srgb, var(--accent) 14%, transparent);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.logo-line {
+  fill: var(--accent);
+  opacity: 0.85;
+}
+.logo-check {
+  stroke: var(--ok);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 12;
+}
+.logo-scan {
+  fill: var(--fg);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .logo-scan {
+    animation: logo-scan 900ms cubic-bezier(0.77, 0, 0.175, 1) 250ms both;
+  }
+  .logo-check {
+    animation: logo-check 320ms cubic-bezier(0.23, 1, 0.32, 1) 1050ms both;
+  }
+  /* hover replays the run under a second name, so the browser restarts it */
+  @media (hover: hover) and (pointer: fine) {
+    a:hover .logo-scan {
+      animation-name: logo-scan-again;
+      animation-delay: 0ms;
+    }
+    a:hover .logo-check {
+      animation-name: logo-check-again;
+      animation-delay: 800ms;
+    }
+  }
+}
+@keyframes logo-scan {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(21px);
+  }
+}
+@keyframes logo-scan-again {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(21px);
+  }
+}
+@keyframes logo-check {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-check-again {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}

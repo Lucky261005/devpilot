@@ -1,0 +1,72 @@
+{
+  "run_at": "2026-10-17T18:02:42Z",
+  "dp001": {
+    "rule": "DP001",
+    "rule_version": "1.0",
+    "files": 4891,
+    "lines": 1203805,
+    "hits": [],
+    "seconds": 11.5
+  },
+  "sim115": {
+    "rule": "SIM115",
+    "ruff_version": "0.17.1",
+    "packages": {
+      "sqlalchemy": "2.1.5",
+      "pydantic": "2.14.1",
+      "httpx": "0.28.1",
+      "anthropic": "1.15.0",
+      "fastapi": "0.143.3",
+      "starlette": "1.8.0",
+      "alembic": "1.20.0",
+      "bandit": "1.9.4",
+      "email_validator": "2.3.0",
+      "uvicorn": "0.54.0",
+      "_pytest": "9.1.1"
+    },
+    "files": 3097,
+    "lines": 588737,
+    "hits": [
+      {
+        "file": "_pytest/assertion/rewrite.py",
+        "line": 362
+      },
+      {
+        "file": "_pytest/capture.py",
+        "line": 489
+      },
+      {
+        "file": "_pytest/capture.py",
+        "line": 493
+      },
+      {
+        "file": "_pytest/config/__init__.py",
+        "line": 505
+      },
+      {
+        "file": "_pytest/helpconfig.py",
+        "line": 129
+      },
+      {
+        "file": "_pytest/pastebin.py",
+        "line": 47
+      },
+      {
+        "file": "bandit/core/config.py",
+        "line": 40
+      },
+      {
+        "file": "bandit/formatters/xml.py",
+        "line": 91
+      },
+      {
+        "file": "sqlalchemy/testing/profiles_file.py",
+        "line": 242
+      },
+      {
+        "file": "starlette/formparsers.py",
+        "line": 234
+      }
+    ]
+  }
+}
