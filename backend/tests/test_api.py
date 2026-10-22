@@ -333,6 +333,9 @@ def test_worker_recovers_stale_and_records_internal_errors(client, sample_zip, s
 
 # --- GitHub (mocked HTTP transport; no network) -------------------------------------------
 
+GH_CALLS: list[str] = []  # paths the mocked GitHub API received
+GH_OVERRIDES: dict[str, httpx.Response] = {}  # path -> canned response, for failure cases
+
 
 def _gh_transport(zip_bytes: bytes):
     pr = {
@@ -347,13 +350,32 @@ def _gh_transport(zip_bytes: bytes):
     }
     patch = '@@ -1,3 +1,8 @@\n BULK_THRESHOLD = 100\n \n \n+def apply_discount(price, quantity):\n+    """Orders of 100 units or more get 10% off."""\n+    if quantity > BULK_THRESHOLD:\n+        return round(price * quantity * 0.9, 2)\n+    return round(price * quantity, 2)\n'
 
+    shop = {"full_name": "acme/shop", "private": True, "default_branch": "main", "updated_at": "2026-10-01T00:00:00Z"}
+
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.headers["authorization"] == "Bearer gho_testtoken"
         p = request.url.path
-        if p == "/repos/acme/shop":
-            return httpx.Response(200, json={"full_name": "acme/shop", "default_branch": "main"})
-        if p.startswith("/repos/acme/shop/zipball/"):
+        GH_CALLS.append(p)
+        if p in GH_OVERRIDES:
+            return GH_OVERRIDES[p]
+        # The App is installed on acme/shop only. acme/public exists and is public, but not granted.
+        if p == "/user/installations":
+            return httpx.Response(200, json={"installations": [{"id": 1}]})
+        if p == "/user/installations/1/repositories":
+            return httpx.Response(200, json={"repositories": [shop]})
+        if p == "/repos/acme/shop/branches":
+            return httpx.Response(
+                200,
+                json=[{"name": "main", "commit": {"sha": "a" * 40}}, {"name": "feat/x", "commit": {"sha": "d" * 40}}],
+            )
+        if p == "/repos/acme/shop/branches/main":
+            return httpx.Response(200, json={"name": "main", "commit": {"sha": "a" * 40}})
+        if p in ("/repos/acme/shop/branches/feat/x", "/repos/acme/shop/branches/feat%2Fx"):
+            return httpx.Response(200, json={"name": "feat/x", "commit": {"sha": "d" * 40}})
+        if p in {f"/repos/acme/shop/zipball/{c * 40}" for c in "acd"}:
             return httpx.Response(200, content=zip_bytes)
+        if p == "/repos/acme/public":
+            return httpx.Response(200, json={"full_name": "acme/public", "default_branch": "main"})
         if p == "/repos/acme/shop/pulls":
             return httpx.Response(200, json=[pr])
         if p == "/repos/acme/shop/pulls/7":
@@ -380,6 +402,8 @@ def _gh_transport(zip_bytes: bytes):
 
 @pytest.fixture
 def github_mock(client, monkeypatch, tmp_path):
+    GH_CALLS.clear()
+    GH_OVERRIDES.clear()
     zip_bytes = zip_dir(SAMPLE, tmp_path / "gh.zip", prefix="acme-shop-ccc/").read_bytes()
     transport = _gh_transport(zip_bytes)
     import app.integrations.github as gh
@@ -401,6 +425,8 @@ def test_github_import_pulls_and_pr_review(client, github_mock, settings):
     assert client.get("/api/github/status").json()["connected"] is True
     r = client.post("/api/repositories/github", json={"full_name": "acme/shop"})
     assert r.status_code == 201 and r.json()["index_status"] == "ready", r.text
+    assert r.json()["source_branch"] == "main" and r.json()["source_sha"] == "a" * 40
+    assert f"/repos/acme/shop/zipball/{'a' * 40}" in GH_CALLS  # downloaded at the pinned commit
     rid = r.json()["id"]
     pulls = client.get(f"/api/repositories/{rid}/pulls").json()
     assert pulls[0]["number"] == 7
@@ -419,6 +445,11 @@ def test_github_import_pulls_and_pr_review(client, github_mock, settings):
 
 def test_github_errors_and_input_validation(client, github_mock):
     assert client.post("/api/repositories/github", json={"full_name": "acme/private"}).status_code == 404
+    # Readable with any token, but not granted to the App: refused, and nothing is stored.
+    r = client.post("/api/repositories/github", json={"full_name": "acme/public"})
+    assert r.status_code == 404 and "Install the GitHub App" in r.json()["detail"]
+    assert client.get("/api/repositories").json() == []
+    assert client.post("/api/repositories/github", json={"full_name": "acme/shop", "branch": "../x"}).status_code == 400
     for bad in ["https://evil.example/x", "acme/../etc", "a/b/c", "127.0.0.1/x y"]:
         assert client.post("/api/repositories/github", json={"full_name": bad}).status_code == 400, bad
 

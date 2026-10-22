@@ -43,8 +43,11 @@ plugins = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = ["live_llm: calls a real LLM provider (needs API key)"]
-addopts = "-m 'not live_llm'"
+markers = [
+    "live_llm: calls a real LLM provider (needs API key)",
+    "live_github: calls the real GitHub API (needs DEVPILOT_TEST_GITHUB_* settings)",
+]
+addopts = "-m 'not live_llm and not live_github'"
 
 [dependency-groups]
 dev = [

@@ -43,10 +43,11 @@ class Settings(BaseSettings):
     # Ollama's default context window is small and it truncates long prompts silently.
     ollama_num_ctx: int = 16384
 
-    # GitHub OAuth (optional)
+    # GitHub App (optional): client id/secret of the App's user-authorization flow, and its URL
+    # slug (github.com/apps/<slug>) for the "install on repositories" link.
     github_client_id: str = ""
     github_client_secret: str = ""
-    github_oauth_scopes: str = ""  # "" = public read-only; "repo" for private repos
+    github_app_slug: str = ""
     github_api_url: str = "https://api.github.com"
 
     # Background jobs

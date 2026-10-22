@@ -75,8 +75,8 @@ export const api = {
   },
   importLocal: (name: string, path: string) =>
     request<Repository>('POST', '/api/repositories/local', { name, path }),
-  importGithub: (full_name: string) =>
-    request<Repository>('POST', '/api/repositories/github', { full_name }),
+  importGithub: (full_name: string, branch: string) =>
+    request<Repository>('POST', '/api/repositories/github', { full_name, branch }),
   updateRepository: (id: number, patch: { ai_review_allowed?: boolean }) =>
     request<Repository>('PATCH', `/api/repositories/${id}`, patch),
   deleteRepository: (id: number) => request<void>('DELETE', `/api/repositories/${id}`),
@@ -112,11 +112,17 @@ export const api = {
       connected: boolean
       login: string | null
       scopes: string | null
+      install_url: string | null
     }>('GET', '/api/github/status'),
   githubRepos: () =>
     request<{ full_name: string; private: boolean; default_branch: string; updated_at: string }[]>(
       'GET',
       '/api/github/repos',
+    ),
+  githubBranches: (full_name: string) =>
+    request<{ default_branch: string; branches: { name: string; sha: string }[] }>(
+      'GET',
+      `/api/github/repos/${full_name.split('/').map(encodeURIComponent).join('/')}/branches`,
     ),
   disconnectGithub: () => request<void>('DELETE', '/api/github/account'),
   pulls: (repoId: number) => request<PullSummary[]>('GET', `/api/repositories/${repoId}/pulls`),

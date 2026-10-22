@@ -442,6 +442,12 @@ export function RepositoryPage() {
             <span className="min-w-0 truncate font-mono text-xs text-faint" title={r.source_ref}>
               {r.source_ref}
             </span>
+            {r.source_branch ? <Pill>{r.source_branch}</Pill> : null}
+            {r.source_sha ? (
+              <span className="font-mono text-xs text-faint" title={r.source_sha}>
+                {r.source_sha.slice(0, 7)}
+              </span>
+            ) : null}
           </>
         }
         actions={

@@ -14,6 +14,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings
+from app.integrations.github import GitHubError
 from app.models import ReviewJob, utcnow
 from app.services.ingestion import IngestionError
 from app.services.review import run_review
@@ -59,7 +60,7 @@ def process_job(db: Session, job: ReviewJob, settings: Settings, **kwargs) -> No
     try:
         run_review(db, job, settings, set_stage=set_stage, **kwargs)
         job.status = "completed"
-    except IngestionError as e:
+    except (IngestionError, GitHubError) as e:  # expected, user-facing failures
         db.rollback()
         job.status, job.error = "failed", str(e)
     except Exception as e:  # noqa: BLE001 - any failure must be recorded, not lost

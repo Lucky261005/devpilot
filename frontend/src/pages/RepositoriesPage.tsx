@@ -14,6 +14,7 @@ import {
   inputClass,
   timeAgo,
 } from '../components/ui'
+import { GitHubImport } from '../components/GitHubImport'
 import { api } from '../lib/api'
 import { SOURCE_LABEL, type Repository } from '../lib/types'
 
@@ -25,17 +26,10 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
   const [file, setFile] = useState<File | null>(null)
   const [over, setOver] = useState(false)
   const [path, setPath] = useState('')
-  const [fullName, setFullName] = useState('')
-  const ghRepos = useQuery({
-    queryKey: ['github-repos'],
-    queryFn: api.githubRepos,
-    enabled: kind === 'github' && !!gh.data?.connected,
-  })
   const m = useMutation({
     mutationFn: () => {
       if (kind === 'archive') return api.importArchive(name, file as File)
-      if (kind === 'local') return api.importLocal(name, path)
-      return api.importGithub(fullName)
+      return api.importLocal(name, path)
     },
     onSuccess: onDone,
   })
@@ -60,7 +54,8 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
     },
   ]
   return (
-    <form onSubmit={submit} className="space-y-5 p-5">
+    // Each source has its own <form>; GitHubImport renders one too, and forms cannot nest.
+    <div className="space-y-5 p-5">
       <div
         role="tablist"
         aria-label="Import source"
@@ -91,21 +86,21 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
             </Link>
           ) : null}
         </p>
+      ) : kind === 'github' ? (
+        <GitHubImport installUrl={gh.data?.install_url ?? null} onDone={onDone} />
       ) : (
-        <>
-          {kind !== 'github' ? (
-            <Field label="Name">
-              <input
-                className={inputClass}
-                required
-                maxLength={100}
-                pattern="[\w.\- ]+"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="payments-service"
-              />
-            </Field>
-          ) : null}
+        <form onSubmit={submit} className="space-y-5">
+          <Field label="Name">
+            <input
+              className={inputClass}
+              required
+              maxLength={100}
+              pattern="[\w.\- ]+"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="payments-service"
+            />
+          </Field>
           {kind === 'archive' ? (
             <Field
               label="Archive"
@@ -160,33 +155,13 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
               />
             </Field>
           ) : null}
-          {kind === 'github' ? (
-            <Field
-              label="Repository"
-              hint="Format: owner/name. The default branch is downloaded and indexed."
-            >
-              <input
-                className={`${inputClass} font-mono`}
-                required
-                list="gh-repos"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="octocat/hello-world"
-              />
-              <datalist id="gh-repos">
-                {ghRepos.data?.map((r) => (
-                  <option key={r.full_name} value={r.full_name} />
-                ))}
-              </datalist>
-            </Field>
-          ) : null}
           {m.error ? <ErrorBox error={m.error} title="Import failed" /> : null}
           <Button variant="primary" type="submit" disabled={m.isPending}>
             {m.isPending ? 'Importing and indexing…' : 'Import repository'}
           </Button>
-        </>
+        </form>
       )}
-    </form>
+    </div>
   )
 }
 
@@ -316,6 +291,8 @@ export function RepositoriesPage() {
                       title={r.source_ref}
                     >
                       {SOURCE_LABEL[r.source_type]} · {r.source_ref}
+                      {r.source_branch ? ` @ ${r.source_branch}` : ''}
+                      {r.source_sha ? ` · ${r.source_sha.slice(0, 7)}` : ''}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">

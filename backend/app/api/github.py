@@ -6,12 +6,12 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import current_user, owned_repo
-from app.api.repositories import github_client_for
+from app.api.repositories import github_client_for, github_error
 from app.core.config import Settings, get_settings
 from app.core.db import get_db
-from app.core.security import encrypt_secret
-from app.integrations.github import GitHubClient, GitHubError, authorize_url, exchange_code
-from app.models import AuditEvent, GitHubAccount, PullRequest, User
+from app.integrations.github import GitHubClient, GitHubError, authorize_url, exchange_code, validate_full_name
+from app.models import AuditEvent, GitHubAccount, PullRequest, User, utcnow
+from app.services import github_tokens
 
 router = APIRouter(tags=["github"])
 STATE_COOKIE = "devpilot_gh_state"
@@ -31,6 +31,9 @@ def github_status(
         "connected": acct is not None,
         "login": acct.github_login if acct else None,
         "scopes": acct.scopes if acct else None,
+        "install_url": f"https://github.com/apps/{settings.github_app_slug}/installations/new"
+        if settings.github_app_slug
+        else None,
     }
 
 
@@ -57,6 +60,7 @@ def oauth_callback(
     request: Request,
     code: str = "",
     state: str = "",
+    error: str = "",
     cookie_state: str | None = Cookie(default=None, alias=STATE_COOKIE),
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
@@ -65,13 +69,18 @@ def oauth_callback(
     expected = f"{user.id}:{state}"
     if not cookie_state or not state or not hmac.compare_digest(cookie_state, expected):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "OAuth state mismatch. Start the connection again.")
+    if error or not code:  # the user declined, or GitHub returned an error instead of a code
+        resp = RedirectResponse(settings.frontend_origin + "/settings?github=declined")
+        resp.delete_cookie(STATE_COOKIE, path="/api/github")
+        return resp
     try:
-        token, scopes = exchange_code(settings, code, _redirect_uri(request))
-        login = GitHubClient(token, settings).user()["login"]
+        tokens = exchange_code(settings, code, _redirect_uri(request), utcnow())
+        login = GitHubClient(tokens.access_token, settings).user()["login"]
     except GitHubError as e:
         raise HTTPException(e.status, str(e)) from e
     acct = db.query(GitHubAccount).filter_by(user_id=user.id).one_or_none() or GitHubAccount(user_id=user.id)
-    acct.github_login, acct.encrypted_token, acct.scopes = login, encrypt_secret(token), scopes
+    acct.github_login, acct.scopes = login, ""
+    github_tokens.store(acct, tokens)
     db.add(acct)
     db.add(AuditEvent(user_id=user.id, action="github.connect", detail={"login": login}))
     db.commit()
@@ -94,7 +103,23 @@ def github_repos(
     try:
         return github_client_for(db, user, settings).list_repos()
     except GitHubError as e:
-        raise HTTPException(e.status, str(e)) from e
+        raise github_error(db, user, e) from e
+
+
+@router.get("/api/github/repos/{owner}/{name}/branches")
+def github_branches(
+    owner: str,
+    name: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+    settings: Settings = Depends(get_settings),
+):
+    try:
+        gh = github_client_for(db, user, settings)
+        meta = gh.authorized_repo(validate_full_name(f"{owner}/{name}"))
+        return {"default_branch": meta["default_branch"], "branches": gh.branches(meta["full_name"])}
+    except GitHubError as e:
+        raise github_error(db, user, e) from e
 
 
 @router.get("/api/repositories/{repo_id}/pulls")
@@ -111,7 +136,7 @@ def list_pulls(
     try:
         return github_client_for(db, user, settings).list_pulls(repo.source_ref, state)
     except GitHubError as e:
-        raise HTTPException(e.status, str(e)) from e
+        raise github_error(db, user, e) from e
 
 
 @router.get("/api/repositories/{repo_id}/pulls/{number}")
@@ -130,7 +155,7 @@ def get_pull(
         meta = gh.pull(repo.source_ref, number)
         files = gh.pull_files(repo.source_ref, number)
     except GitHubError as e:
-        raise HTTPException(e.status, str(e)) from e
+        raise github_error(db, user, e) from e
     pr = db.query(PullRequest).filter_by(repository_id=repo.id, number=number).one_or_none()
     if pr is None:
         pr = PullRequest(repository_id=repo.id, number=number)

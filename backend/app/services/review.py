@@ -16,7 +16,7 @@ from app.ai.provider import LLMProvider, ProviderUnavailable, get_provider
 from app.analyzers.base import AnalyzerError, NormalizedFinding
 from app.analyzers.python_tools import default_analyzers
 from app.core.config import Settings
-from app.core.security import decrypt_secret
+from app.integrations.github import GitHubError
 from app.models import (
     ChangedFile,
     Finding,
@@ -26,7 +26,7 @@ from app.models import (
     ReviewJob,
     TestSuggestion,
 )
-from app.services import ingestion
+from app.services import github_tokens, ingestion
 from app.services.diff import FilePatch, in_changed_lines, parse_hunks, parse_unified_diff
 from app.services.findings import deduplicate, validate_ai_findings, validate_test_suggestions
 from app.services.test_suggestions import is_test_file, suggest_for_changes
@@ -59,7 +59,11 @@ def _prepare_pull_request(
     pr = db.get(PullRequest, job.pull_request_id)
     if pr is None:
         raise ingestion.IngestionError("The pull request record no longer exists.")
-    gh = github_factory(decrypt_secret(account.encrypted_token), settings)
+    try:
+        token = github_tokens.access_token(db, account, settings)
+    except GitHubError as e:
+        raise ingestion.IngestionError(str(e)) from e
+    gh = github_factory(token, settings)
     meta = gh.pull(repo.source_ref, pr.number)
     pr.head_sha, pr.base_sha, pr.title = meta["head_sha"], meta["base_sha"], meta["title"]
     files = gh.pull_files(repo.source_ref, pr.number)

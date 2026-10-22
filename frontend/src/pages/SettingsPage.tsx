@@ -56,6 +56,11 @@ export function SettingsPage() {
         description="Integrations, the LLM provider and what happens to your code. Values come from the server configuration."
       />
       <div className="space-y-8">
+        {params.get('github') === 'declined' ? (
+          <div role="status" className="rise-in">
+            <Notice tone="warn">GitHub authorization was cancelled. Nothing was connected.</Notice>
+          </div>
+        ) : null}
         {params.get('github') === 'connected' ? (
           <div role="status" className="rise-in">
             <Notice tone="ok">GitHub account connected.</Notice>
@@ -76,9 +81,7 @@ export function SettingsPage() {
               ) : gh.data.connected ? (
                 <>
                   Connected as <b className="text-fg">{gh.data.login}</b>
-                  {gh.data.scopes
-                    ? ` with scopes: ${gh.data.scopes}.`
-                    : ', public read-only access.'}
+                  {', read-only access to the repositories you choose.'}
                 </>
               ) : (
                 <>
@@ -93,6 +96,16 @@ export function SettingsPage() {
             ) : gh.data.connected ? (
               <>
                 <Pill tone="ok">Connected</Pill>
+                {gh.data.install_url ? (
+                  <a
+                    href={gh.data.install_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm font-medium text-accent hover:underline"
+                  >
+                    Choose repositories
+                  </a>
+                ) : null}
                 <Button
                   variant="danger"
                   size="sm"

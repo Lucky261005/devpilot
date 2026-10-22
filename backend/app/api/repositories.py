@@ -10,11 +10,10 @@ from app.api.deps import current_user, owned_repo
 from app.core.config import Settings, get_settings
 from app.core.db import get_db
 from app.core.ratelimit import limiter
-from app.core.security import decrypt_secret
 from app.integrations.github import GitHubClient, GitHubError, validate_full_name
 from app.models import AuditEvent, GitHubAccount, Repository, User
 from app.schemas import FileContent, GitHubRepoIn, LocalRepoIn, RepositoryOut, RepositoryPatch
-from app.services import ingestion
+from app.services import github_tokens, ingestion
 from app.services.indexing import index_snapshot, list_paths, search
 
 router = APIRouter(prefix="/api/repositories", tags=["repositories"])
@@ -114,10 +113,23 @@ def import_local(
 
 
 def github_client_for(db: Session, user: User, settings: Settings) -> GitHubClient:
+    """A client acting as this user. Raises GitHubError when the stored authorization is gone."""
     account = db.query(GitHubAccount).filter_by(user_id=user.id).one_or_none()
     if account is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Connect a GitHub account first.")
-    return GitHubClient(decrypt_secret(account.encrypted_token), settings)
+    return GitHubClient(github_tokens.access_token(db, account, settings), settings)
+
+
+def github_error(db: Session, user: User, e: GitHubError) -> HTTPException:
+    """Map a GitHub failure to an HTTP error; a rejected token also ends the stored connection."""
+    if e.status == 401:
+        account = db.query(GitHubAccount).filter_by(user_id=user.id).one_or_none()
+        if account is not None:
+            github_tokens.forget(db, account, "token_rejected")
+        return HTTPException(
+            status.HTTP_401_UNAUTHORIZED, "GitHub access was revoked or expired. Connect GitHub again."
+        )
+    return HTTPException(e.status, str(e))
 
 
 @router.post("/github", response_model=RepositoryOut, status_code=201)
@@ -129,17 +141,24 @@ def import_github(
 ):
     _check_quota(user, settings)
     try:
-        full_name = validate_full_name(body.full_name)
+        validate_full_name(body.full_name)
         gh = github_client_for(db, user, settings)
-        meta = gh.repo(full_name)  # access check before anything is stored
+        # Authorization check before anything is stored: the repository must be in this user's
+        # App installation grants. Its canonical name comes from GitHub, not from the request.
+        meta = gh.authorized_repo(body.full_name)
+        full_name, branch = meta["full_name"], body.branch or meta["default_branch"]
+        sha = gh.branch_sha(full_name, branch)  # pin the import to one commit
     except GitHubError as e:
-        raise HTTPException(e.status, str(e)) from e
-    repo = _new_repo(db, user, full_name.replace("/", "-"), "github", full_name)
+        raise github_error(db, user, e) from e
+    name = full_name.replace("/", "-") + ("" if branch == meta["default_branch"] else "@" + branch.replace("/", "-"))
+    repo = _new_repo(db, user, name, "github", full_name)
+    repo.source_branch, repo.source_sha = branch, sha
+    db.commit()
 
     def fill(root: Path) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             z = Path(tmp) / "repo.zip"
-            gh.download_zipball(full_name, meta["default_branch"], z)
+            gh.download_zipball(full_name, sha, z)
             ingestion.safe_extract_zip(z, root, settings, strip_top=True)
 
     return _index_or_fail(db, repo, fill, settings)

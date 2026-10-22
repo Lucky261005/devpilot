@@ -100,7 +100,7 @@ def public_settings(settings: Settings = Depends(get_settings)):
         },
         "github": {
             "configured": settings.github_configured,
-            "scopes": settings.github_oauth_scopes or "(public, read-only)",
+            "scopes": "read-only (GitHub App: contents, metadata, pull requests)",
         },
         "limits": {
             "max_upload_bytes": settings.max_upload_bytes,

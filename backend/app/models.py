@@ -48,6 +48,10 @@ class GitHubAccount(TimestampMixin, Base):
     github_login: Mapped[str] = mapped_column(String(255))
     encrypted_token: Mapped[str] = mapped_column(Text)
     scopes: Mapped[str] = mapped_column(String(255), default="")
+    # GitHub App user tokens expire (about 8 h) and are renewed with a rotating refresh token.
+    encrypted_refresh_token: Mapped[str | None] = mapped_column(Text, nullable=True)
+    token_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    refresh_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class Repository(TimestampMixin, Base):
@@ -59,6 +63,9 @@ class Repository(TimestampMixin, Base):
     source_type: Mapped[str] = mapped_column(String(16))  # archive | local | github
     # local: absolute path; github: "owner/repo"; archive: original filename
     source_ref: Mapped[str] = mapped_column(String(1024))
+    # github: the branch imported and the exact commit its snapshot came from
+    source_branch: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    source_sha: Mapped[str | None] = mapped_column(String(40), nullable=True)
     # Explicit opt-in before any source from this repository is sent to an external LLM.
     ai_review_allowed: Mapped[bool] = mapped_column(Boolean, default=False)
     index_status: Mapped[str] = mapped_column(String(16), default="pending")

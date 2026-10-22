@@ -25,6 +25,8 @@ class RepositoryOut(ORM):
     name: str
     source_type: str
     source_ref: str
+    source_branch: str | None = None
+    source_sha: str | None = None
     ai_review_allowed: bool
     index_status: str
     index_error: str | None
@@ -42,6 +44,7 @@ class LocalRepoIn(BaseModel):
 
 class GitHubRepoIn(BaseModel):
     full_name: str = Field(max_length=140)
+    branch: str | None = Field(default=None, max_length=200)  # default branch when omitted
 
 
 class RepositoryPatch(BaseModel):

@@ -17,6 +17,8 @@ export interface Repository {
   name: string
   source_type: 'archive' | 'local' | 'github'
   source_ref: string
+  source_branch: string | null
+  source_sha: string | null
   ai_review_allowed: boolean
   index_status: 'pending' | 'indexing' | 'ready' | 'failed'
   index_error: string | null
