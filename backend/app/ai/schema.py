@@ -43,4 +43,9 @@ class AITestSuggestion(BaseModel):
 class AIReview(BaseModel):
     summary: str = Field(max_length=2000, description="Two or three sentences about the change.")
     findings: list[AIFinding] = Field(max_length=20)
+    unconfirmed: list[str] = Field(
+        default_factory=list,
+        max_length=5,
+        description="Suspicions the code shown does not prove, one sentence each. Not findings.",
+    )
     test_suggestions: list[AITestSuggestion] = Field(max_length=5)

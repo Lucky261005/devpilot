@@ -11,8 +11,9 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from app.ai.context import SYSTEM_PROMPT, build_context
+from app.ai.context import PROMPTS, build_context
 from app.ai.provider import LLMProvider, ProviderUnavailable, get_provider
+from app.ai.tools import RepoTools
 from app.analyzers.base import AnalyzerError, NormalizedFinding
 from app.analyzers.python_tools import default_analyzers
 from app.core.config import Settings
@@ -186,8 +187,11 @@ def run_review(
                     (p, lang[p], by_path.get(p)) for p in ordered if lang[p] not in ("markdown", "text", "json")
                 ]
                 title = f"{repo.name} ({job.kind})"
-                ctx = build_context(root, ctx_targets, static, test_files, settings.llm_max_context_chars, title)
-                result = provider.review(SYSTEM_PROMPT, ctx.user_prompt)
+                tools = RepoTools(root) if settings.llm_context == "repo" else None
+                ctx = build_context(
+                    root, ctx_targets, static, test_files, settings.llm_max_context_chars, title, tools=tools
+                )
+                result = provider.review(PROMPTS[settings.llm_prompt_version], ctx.user_prompt)
                 ai_stats = {
                     "model": result.model,
                     "provider": provider.name,
@@ -198,6 +202,9 @@ def run_review(
                     "context_chars": ctx.chars,
                     "files_in_context": len(ctx.shown),
                     "files_omitted": ctx.omitted_files[:50],
+                    "prompt_version": settings.llm_prompt_version,
+                    "context_mode": settings.llm_context,
+                    "related_code": ctx.related,
                 }
                 if result.review is None:
                     ai_stats |= {"status": "failed", "reason": result.error}
@@ -211,6 +218,7 @@ def run_review(
                         "returned": len(result.review.findings),
                         "accepted": len(report.accepted),
                         "rejected": [{"title": t[:120], "reason": r} for t, r in report.rejected],
+                        "unconfirmed": [u[:300] for u in result.review.unconfirmed],
                     }
         timings["ai_ms"] = int((time.monotonic() - t2) * 1000)
 

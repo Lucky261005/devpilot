@@ -42,6 +42,10 @@ export interface AiStats {
   latency_ms?: number
   files_in_context?: number
   files_omitted?: string[]
+  prompt_version?: string
+  context_mode?: string
+  related_code?: string[]
+  unconfirmed?: string[]
 }
 
 export interface Review {

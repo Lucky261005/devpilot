@@ -187,7 +187,8 @@ def render_markdown(result: dict) -> str:
              "All cases are synthetic.", "",
              f"Environment: Python {result['env']['python']}, {result['env']['platform']}, "
              f"analyzers {result['env']['analyzers']}. Match tolerance ±{TOLERANCE} lines.", "",
-             f"System prompt: {result['system_prompt']['source']} (sha256 {result['system_prompt']['sha256']}). "
+             f"System prompt: {result['system_prompt']['source']} (sha256 {result['system_prompt']['sha256']}), "
+             f"context: {result['system_prompt'].get('context', 'changed')}. "
              f"Strategy: {result.get('strategy', 'single')}. "
              f"Label-blind: {'yes' if result.get('label_blind') else 'NO (pre-fix run)'}.", "",
              "| Config | Status | Precision | Recall | TP | FP | FN | Dup | Clean-case FP rate | Severity match | Valid citations | p50 latency (ms) | Cost/review (USD) | Failure rate |",
@@ -228,15 +229,17 @@ def main() -> None:
                     help="experiment: two-step = plain-text analysis call, then the structured call")
     args = ap.parse_args()
 
-    import app.services.review as review_module  # the pipeline reads SYSTEM_PROMPT from here
+    from app.ai import context as ctx_module  # the pipeline reads ctx_module.PROMPTS[version]
 
-    prompt_source = "production (app/ai/context.py)"
+    settings = get_settings()
+    version = settings.llm_prompt_version  # DEVPILOT_LLM_PROMPT_VERSION
+    prompt_source = f"production {version} (app/ai/context.py)"
     if args.system_prompt_file:
         # Only this benchmark process is affected; the application code is not changed.
-        review_module.SYSTEM_PROMPT = Path(args.system_prompt_file).read_text(encoding="utf-8")
+        ctx_module.PROMPTS[version] = Path(args.system_prompt_file).read_text(encoding="utf-8")
         prompt_source = Path(args.system_prompt_file).name
-    system_prompt = {"source": prompt_source,
-                     "sha256": hashlib.sha256(review_module.SYSTEM_PROMPT.encode()).hexdigest()[:16]}
+    system_prompt = {"source": prompt_source, "version": version, "context": settings.llm_context,
+                     "sha256": hashlib.sha256(ctx_module.PROMPTS[version].encode()).hexdigest()[:16]}
 
     cases = load_cases(args.dataset)
     Base.metadata.create_all(engine)

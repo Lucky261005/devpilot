@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     llm_effort: str = "medium"
     llm_timeout_s: float = 120.0
     llm_max_context_chars: int = 60_000
+    # Phase 3 switches, chosen by evaluation (docs/evaluation.md). v1/changed is the original.
+    llm_prompt_version: str = "v1"  # "v1" | "v2"  (app/ai/context.py PROMPTS)
+    llm_context: str = "changed"  # "changed": changed files only | "repo": plus related code
     anthropic_api_key: str = Field(default="", validation_alias="ANTHROPIC_API_KEY")
     # Local models via Ollama. Admin-set only; users never supply this URL.
     ollama_url: str = "http://127.0.0.1:11434"

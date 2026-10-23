@@ -1,0 +1,907 @@
+{
+  "cases": [
+    {
+      "case_id": "mf-timeout-units",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-58fafbb2",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 187,
+          "static_ms": 719,
+          "total_ms": 952
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "mf-none-return-unchecked",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-dd33865f",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 735,
+          "total_ms": 967
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "mf-swapped-arguments",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-52998b6d",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 780,
+          "total_ms": 1000
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "mf-unhandled-keyerror",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-41caa382",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 250,
+          "static_ms": 828,
+          "total_ms": 1109
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "rw-retry-count-off-by-one",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-84f9260f",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 812,
+          "total_ms": 1031
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "rw-naive-vs-aware-datetime",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-1c06daed",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 187,
+          "static_ms": 906,
+          "total_ms": 1110
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "rw-delete-while-iterating",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-9c0d2067",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 233,
+          "static_ms": 1187,
+          "total_ms": 1453
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "rw-average-of-empty",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-8e4fa85e",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 235,
+          "static_ms": 860,
+          "total_ms": 1125
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "sec-path-traversal",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-06eedd29",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 265,
+          "static_ms": 937,
+          "total_ms": 1280
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "sec-pickle-from-cookie",
+      "config": "static",
+      "findings": [
+        {
+          "analyzer": "bandit",
+          "analyzer_version": "1.9.4",
+          "category": "security",
+          "confidence": "high",
+          "description": "Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue. (CWE-502)",
+          "end_line": 5,
+          "evidence": "    return pickle.loads(cookie_value)",
+          "path": "session_store.py",
+          "rule_id": "B301",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 5,
+          "title": "B301: blacklist"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-d1b05eaf",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "prepare_ms": 217,
+          "static_ms": 921,
+          "total_ms": 1155
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "sec-jwt-signature-ignored",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-565963a3",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 187,
+          "static_ms": 828,
+          "total_ms": 1047
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "rw-default-arg-evaluated-once",
+      "config": "static",
+      "findings": [
+        {
+          "analyzer": "ruff",
+          "analyzer_version": "0.17.1",
+          "category": "bug",
+          "confidence": "high",
+          "description": "Do not perform function call `datetime.now` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+          "end_line": 4,
+          "evidence": "def record(event, at=datetime.now(timezone.utc)):",
+          "path": "audit.py",
+          "rule_id": "B008",
+          "severity": "medium",
+          "source": "static",
+          "start_line": 4,
+          "title": "B008: function-call-in-default-argument"
+        }
+      ],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-e17a71ea",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 1,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 1
+        },
+        "timings": {
+          "prepare_ms": 171,
+          "static_ms": 828,
+          "total_ms": 1030
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "clean-parameterized-sql",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-d41c3431",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 187,
+          "static_ms": 843,
+          "total_ms": 1078
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "clean-log-and-reraise",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-ecdcd1c3",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 875,
+          "total_ms": 1109
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "clean-guarded-division",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-58109858",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 765,
+          "total_ms": 1016
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "clean-multifile-correct-call",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-d365cd4b",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 203,
+          "static_ms": 937,
+          "total_ms": 1187
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    },
+    {
+      "case_id": "clean-multifile-none-handled",
+      "config": "static",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-5439f6aa",
+      "stats": {
+        "ai": {
+          "status": "not_requested"
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          },
+          "bandit": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.9.4"
+          },
+          "devpilot-ast": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "1.0"
+          },
+          "ruff": {
+            "files": 1,
+            "raw_findings": 0,
+            "status": "ok",
+            "version": "0.17.1"
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "prepare_ms": 264,
+          "static_ms": 1062,
+          "total_ms": 1358
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": false
+    }
+  ],
+  "dataset": "v2",
+  "format": "devpilot-run-details/1",
+  "jobs": 17,
+  "source_db": "eval.db"
+}

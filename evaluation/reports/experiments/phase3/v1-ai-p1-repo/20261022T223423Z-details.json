@@ -1,0 +1,875 @@
+{
+  "cases": [
+    {
+      "case_id": "boundary-discount-threshold",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-56871dc5",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 559,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 481,
+          "latency_ms": 2078,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2391,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 2641
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-pagination-drops-last-page",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-c052e735",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 535,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 468,
+          "latency_ms": 1610,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1828,
+          "prepare_ms": 202,
+          "static_ms": 0,
+          "total_ms": 2109
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "boundary-last-index",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-78b5f302",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 429,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 438,
+          "latency_ms": 1453,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1671,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 1906
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-bare-except-swallows",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-b28efa18",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 519,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 457,
+          "latency_ms": 1593,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 30,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1796,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 2047
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "errors-lost-exception-context",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-a57ed177",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 534,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 464,
+          "latency_ms": 1530,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 26,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1733,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 1984
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-file-not-closed",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-dedad3a3",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 512,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 460,
+          "latency_ms": 1640,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1905,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 2141
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "resource-connection-leak-on-error",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-5173f4d7",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 610,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 500,
+          "latency_ms": 1780,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2000,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 2219
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-inverted-permission",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-1c1d2f22",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 464,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 438,
+          "latency_ms": 1483,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1733,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 1985
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "logic-mutable-default",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-cc98d9b5",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 463,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 444,
+          "latency_ms": 1608,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1875,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 2078
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-shell-injection",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-e9d7b76e",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 569,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 465,
+          "latency_ms": 1625,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1827,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 2078
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-sql-fstring",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-467c44c9",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 548,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 462,
+          "latency_ms": 1609,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1843,
+          "prepare_ms": 202,
+          "static_ms": 0,
+          "total_ms": 2108
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-yaml-load",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-6eadf032",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 531,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 474,
+          "latency_ms": 1766,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2108,
+          "prepare_ms": 203,
+          "static_ms": 0,
+          "total_ms": 2360
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "security-tls-verify-off",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-d6dc95d9",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 438,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 429,
+          "latency_ms": 1437,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the reviewed code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1641,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 1875
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-rename-variable",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-017b5a4d",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 410,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 426,
+          "latency_ms": 1483,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1687,
+          "prepare_ms": 202,
+          "static_ms": 0,
+          "total_ms": 1921
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-add-typed-helper",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-a0775af1",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 524,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 458,
+          "latency_ms": 1625,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1828,
+          "prepare_ms": 219,
+          "static_ms": 0,
+          "total_ms": 2094
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-context-manager-refactor",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-71bdfc37",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 407,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 421,
+          "latency_ms": 1390,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 1609,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 1844
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    },
+    {
+      "case_id": "clean-safe-subprocess",
+      "config": "ai",
+      "findings": [],
+      "job_error": null,
+      "job_status": "completed",
+      "kind": "diff",
+      "label_blind": true,
+      "repo_name": "repo-38cdb9a2",
+      "stats": {
+        "ai": {
+          "accepted": 0,
+          "attempts": 1,
+          "context_chars": 621,
+          "context_mode": "repo",
+          "files_in_context": 1,
+          "files_omitted": [],
+          "input_tokens": 486,
+          "latency_ms": 1782,
+          "model": "qwen2.5-coder:3b",
+          "output_tokens": 31,
+          "prompt_version": "v1",
+          "provider": "ollama",
+          "rejected": [],
+          "related_code": [],
+          "returned": 0,
+          "status": "completed",
+          "summary": "No actionable defects found in the provided code change.",
+          "unconfirmed": []
+        },
+        "analyzers": {
+          "_filtered_outside_changed_lines": {
+            "count": 0
+          }
+        },
+        "duplicates_dropped": 0,
+        "files_reviewed": 1,
+        "findings": {
+          "ai": 0,
+          "static": 0
+        },
+        "timings": {
+          "ai_ms": 2062,
+          "prepare_ms": 187,
+          "static_ms": 0,
+          "total_ms": 2282
+        }
+      },
+      "test_suggestions": 1,
+      "use_ai": true
+    }
+  ],
+  "dataset": "v1",
+  "format": "devpilot-run-details/1",
+  "jobs": 17,
+  "source_db": "eval.db"
+}

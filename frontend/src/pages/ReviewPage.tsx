@@ -290,6 +290,32 @@ function RunSummary({ review }: { review: Review }) {
                     </ul>
                   </details>
                 ) : null}
+                {ai.unconfirmed?.length ? (
+                  <details>
+                    <summary className="cursor-pointer text-xs text-muted">
+                      {ai.unconfirmed.length} unconfirmed suspicion
+                      {ai.unconfirmed.length > 1 ? 's' : ''} (not findings)
+                    </summary>
+                    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-muted">
+                      {ai.unconfirmed.map((u, i) => (
+                        <li key={i}>{u}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
+                {ai.related_code?.length ? (
+                  <details>
+                    <summary className="cursor-pointer text-xs text-muted">
+                      Read {ai.related_code.length} related definition
+                      {ai.related_code.length > 1 ? 's' : ''} from other files
+                    </summary>
+                    <ul className="mt-1 space-y-0.5 font-mono text-xs text-faint">
+                      {ai.related_code.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
                 <p className="text-xs text-faint">
                   {ai.input_tokens ?? '?'} in / {ai.output_tokens ?? '?'} out tokens ·{' '}
                   {((ai.latency_ms ?? 0) / 1000).toFixed(1)} s
