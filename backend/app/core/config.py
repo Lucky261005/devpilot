@@ -83,6 +83,15 @@ class Settings(BaseSettings):
         return self.llm_provider == "ollama" and host in {"127.0.0.1", "localhost", "::1"}
 
     @property
+    def context_chars(self) -> int:
+        """Code budget for one review prompt. Ollama refuses prompts above 75% of num_ctx (about
+        3.5 characters per token), so the budget shrinks to fit, keeping 12,000 characters for the
+        system prompt, analyzer results and headers. Files that do not fit are omitted and listed."""
+        if self.llm_provider == "ollama":
+            return max(4_000, min(self.llm_max_context_chars, int(self.ollama_num_ctx * 0.75 * 3.5) - 12_000))
+        return self.llm_max_context_chars
+
+    @property
     def github_configured(self) -> bool:
         return bool(self.github_client_id and self.github_client_secret)
 

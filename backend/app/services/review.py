@@ -188,9 +188,7 @@ def run_review(
                 ]
                 title = f"{repo.name} ({job.kind})"
                 tools = RepoTools(root) if settings.llm_context == "repo" else None
-                ctx = build_context(
-                    root, ctx_targets, static, test_files, settings.llm_max_context_chars, title, tools=tools
-                )
+                ctx = build_context(root, ctx_targets, static, test_files, settings.context_chars, title, tools=tools)
                 result = provider.review(PROMPTS[settings.llm_prompt_version], ctx.user_prompt)
                 ai_stats = {
                     "model": result.model,

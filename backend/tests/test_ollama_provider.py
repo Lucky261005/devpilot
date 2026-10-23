@@ -143,3 +143,12 @@ def test_live_ollama_returns_valid_review(settings):
     )
     r = OllamaProvider(s).review(SYSTEM_PROMPT, user)
     assert r.error is None and r.review is not None
+
+
+def test_context_budget_fits_the_ollama_window():
+    from app.core.config import Settings
+
+    s = Settings(llm_provider="ollama", ollama_num_ctx=16384, llm_max_context_chars=60_000)
+    assert s.context_chars == 31_008  # 16384 * 0.75 * 3.5 - 12000: never above what Ollama accepts
+    assert Settings(llm_provider="ollama", ollama_num_ctx=32768, llm_max_context_chars=60_000).context_chars == 60_000
+    assert Settings(llm_provider="anthropic", llm_max_context_chars=60_000).context_chars == 60_000
