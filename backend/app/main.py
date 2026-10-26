@@ -4,12 +4,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api import auth, github, repositories, reviews
+from app.api import auth, github, qa, repositories, reviews
 from app.core.config import Settings, get_settings
 from app.core.db import SessionLocal, get_db
 from app.core.logging import configure_logging, request_id_var
@@ -37,26 +37,49 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="DevPilot API", version="0.1.0", lifespan=lifespan)
 
 
+# Interactive docs and the schema are for local development only.
+DOCS_PATHS = {"/docs", "/docs/oauth2-redirect", "/redoc", "/openapi.json"}
+# The API returns JSON only: nothing may load, run or frame it.
+API_CSP = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+
+
+def _security_headers(response: Response, path: str, settings: Settings) -> Response:
+    response.headers["x-content-type-options"] = "nosniff"
+    response.headers["referrer-policy"] = "no-referrer"
+    response.headers["x-frame-options"] = "DENY"
+    if path not in DOCS_PATHS:  # Swagger UI needs its own scripts; it only exists in development
+        response.headers["content-security-policy"] = API_CSP
+    if settings.env != "development" and settings.hsts_seconds:
+        response.headers["strict-transport-security"] = f"max-age={settings.hsts_seconds}"
+    return response
+
+
 @app.middleware("http")
 async def guard(request: Request, call_next):
     rid = request.headers.get("x-request-id", "")[:64] or uuid.uuid4().hex[:16]
     token = request_id_var.set(rid)
     try:
         settings = get_settings()
+        path = request.url.path
+        if settings.env != "development" and path in DOCS_PATHS:
+            return _security_headers(JSONResponse({"detail": "Not Found"}, status_code=404), path, settings)
         length = request.headers.get("content-length")
         if length and length.isdigit() and int(length) > settings.max_upload_bytes + 1_000_000:
-            return JSONResponse({"detail": "Request body too large."}, status_code=413)
+            return _security_headers(
+                JSONResponse({"detail": "Request body too large."}, status_code=413), path, settings
+            )
         # Without Content-Length the multipart parser would spool an unbounded upload to disk.
         if not length and request.headers.get("content-type", "").startswith("multipart/"):
-            return JSONResponse({"detail": "Content-Length required for uploads."}, status_code=411)
+            return _security_headers(
+                JSONResponse({"detail": "Content-Length required for uploads."}, status_code=411), path, settings
+            )
         # CSRF: cookies are SameSite=Lax, and state-changing calls must carry a custom header,
         # which a cross-site form cannot set.
         if request.method in UNSAFE and request.headers.get("x-devpilot-csrf") != "1":
-            return JSONResponse({"detail": "Missing CSRF header."}, status_code=403)
+            return _security_headers(JSONResponse({"detail": "Missing CSRF header."}, status_code=403), path, settings)
         response = await call_next(request)
         response.headers["x-request-id"] = rid
-        response.headers["x-content-type-options"] = "nosniff"
-        return response
+        return _security_headers(response, path, settings)
     finally:
         request_id_var.reset(token)
 
@@ -92,6 +115,7 @@ def health(db: Session = Depends(get_db)):
 def public_settings(settings: Settings = Depends(get_settings)):
     """What the UI needs to explain data flow. Never includes secrets."""
     return {
+        "registration": settings.registration_mode,  # never the invite code
         "llm": {
             "provider": settings.llm_provider if settings.llm_configured else None,
             "model": settings.active_llm_model if settings.llm_configured else None,
@@ -107,11 +131,12 @@ def public_settings(settings: Settings = Depends(get_settings)):
             "max_repo_bytes": settings.max_repo_bytes,
             "max_file_bytes": settings.max_file_bytes,
             "reviews_per_hour": settings.reviews_per_hour,
+            "reviews_global_per_hour": settings.reviews_global_per_hour,
         },
         "local_import_enabled": bool(settings.allowed_local_roots),
         "retention_days": settings.retention_days,
     }
 
 
-for r in (auth.router, repositories.router, reviews.router, github.router):
+for r in (auth.router, repositories.router, qa.router, reviews.router, github.router):
     app.include_router(r)

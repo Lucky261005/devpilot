@@ -41,6 +41,65 @@ class UserSession(TimestampMixin, Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class LoginAttempt(Base):
+    """One sign-in attempt for an account inside the throttle window (see api/auth.py).
+
+    account_key is a keyed hash of the normalized email (core/security.account_key), never the
+    email itself, and exists for unknown emails too so the throttle cannot reveal accounts."""
+
+    __tablename__ = "login_attempts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_key: Mapped[str] = mapped_column(String(64), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class IpRateEvent(Base):
+    """One accepted sign-in or registration request from a client IP (api/auth.py `_throttle`).
+
+    ip_key is a keyed hash of the address (core/security.ip_key), never the address itself. A row
+    counts toward its scope's limit until expires_at; refused requests leave no row."""
+
+    __tablename__ = "ip_rate_events"
+    __table_args__ = (Index("ix_ip_rate_events_scope_key", "scope", "ip_key"),)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    scope: Mapped[str] = mapped_column(String(32))
+    ip_key: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class ImportEvent(Base):
+    """One repository import admitted under the per-user hourly quota (api/repositories.py).
+
+    Holds only the user id and when the record stops counting; refused imports leave no row."""
+
+    __tablename__ = "import_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class ReviewQuotaEvent(Base):
+    """One review admitted under the per-user hourly quota (api/reviews.py `_admit_user_review`).
+
+    Holds only the user id and when the record stops counting; refused reviews leave no row. Separate
+    from ReviewAdmission (installation-wide cap): both apply to every review."""
+
+    __tablename__ = "review_quota_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
+class ReviewAdmission(Base):
+    """One review job admitted under the installation-wide hourly cap (api/reviews.py).
+
+    Deliberately not linked to repositories or users: deleting either must not free capacity."""
+
+    __tablename__ = "review_admissions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class GitHubAccount(TimestampMixin, Base):
     __tablename__ = "github_accounts"
     id: Mapped[int] = mapped_column(primary_key=True)

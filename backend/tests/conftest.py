@@ -10,7 +10,10 @@ import pytest
 _TMP = Path(tempfile.mkdtemp(prefix="devpilot-test-"))
 os.environ.update(
     {
-        "DEVPILOT_DATABASE_URL": f"sqlite:///{(_TMP / 'test.db').as_posix()}",
+        # A throwaway SQLite file by default. DEVPILOT_TEST_DATABASE_URL points the suite at a disposable
+        # database instead (e.g. a PostgreSQL test container); never the app's own database.
+        "DEVPILOT_DATABASE_URL": os.environ.get("DEVPILOT_TEST_DATABASE_URL")
+        or f"sqlite:///{(_TMP / 'test.db').as_posix()}",
         "DEVPILOT_DATA_DIR": str(_TMP / "data"),
         "DEVPILOT_RUN_WORKER_IN_PROCESS": "false",
         "DEVPILOT_ALLOWED_LOCAL_ROOTS": str(_TMP / "local"),
@@ -19,6 +22,9 @@ os.environ.update(
         "ANTHROPIC_API_KEY": "",
         # Pin the provider so a developer's backend/.env (e.g. ollama) never leaks into tests.
         "DEVPILOT_LLM_PROVIDER": "anthropic",
+        # Same for the registration policy; tests that need another mode set it explicitly.
+        "DEVPILOT_REGISTRATION": "open",
+        "DEVPILOT_INVITE_CODE": "",
     }
 )
 (_TMP / "local").mkdir()
@@ -29,7 +35,6 @@ from fastapi.testclient import TestClient  # noqa: E402
 from alembic import command  # noqa: E402
 from app.core.config import get_settings  # noqa: E402
 from app.core.db import SessionLocal, engine  # noqa: E402
-from app.core.ratelimit import limiter  # noqa: E402
 from app.models import ReviewJob  # noqa: E402
 
 SAMPLE = Path(__file__).resolve().parents[2] / "fixtures" / "sample_repositories" / "inventory_service"
@@ -48,7 +53,15 @@ def _migrate():
 
 @pytest.fixture(autouse=True)
 def _reset_limits():
-    limiter.reset()
+    from app.models import ImportEvent, IpRateEvent, LoginAttempt, ReviewAdmission, ReviewQuotaEvent
+
+    with SessionLocal() as db:
+        db.query(IpRateEvent).delete()
+        db.query(ImportEvent).delete()
+        db.query(ReviewQuotaEvent).delete()
+        db.query(LoginAttempt).delete()
+        db.query(ReviewAdmission).delete()
+        db.commit()
 
 
 @pytest.fixture(autouse=True)
@@ -88,24 +101,25 @@ def make_client() -> TestClient:
 _counter = iter(range(10_000))
 
 
-@pytest.fixture
-def client():
+def signed_up(email: str, password: str) -> TestClient:
+    """A client with a new account, signed in (registration itself starts no session)."""
     c = make_client()
-    email = f"user{next(_counter)}@example.com"
-    r = c.post("/api/auth/register", json={"email": email, "password": "correct-horse-1"})
-    assert r.status_code == 201, r.text
+    r = c.post("/api/auth/register", json={"email": email, "password": password})
+    assert r.status_code == 202, r.text
+    r = c.post("/api/auth/login", json={"email": email, "password": password})
+    assert r.status_code == 200, r.text
     c.email = email  # type: ignore[attr-defined]
     return c
 
 
 @pytest.fixture
+def client():
+    return signed_up(f"user{next(_counter)}@example.com", "correct-horse-1")
+
+
+@pytest.fixture
 def other_client():
-    c = make_client()
-    r = c.post(
-        "/api/auth/register", json={"email": f"other{next(_counter)}@example.com", "password": "correct-horse-2"}
-    )
-    assert r.status_code == 201
-    return c
+    return signed_up(f"other{next(_counter)}@example.com", "correct-horse-2")
 
 
 def zip_dir(src: Path, dest: Path, prefix: str = "") -> Path:

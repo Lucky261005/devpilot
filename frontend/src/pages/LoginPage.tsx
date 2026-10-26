@@ -1,10 +1,11 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HeroScene } from '../components/HeroScene'
 import { Logo } from '../components/Logo'
 import { Button, ErrorBox, Field, inputClass } from '../components/ui'
 import { api } from '../lib/api'
+import { useTitle } from '../lib/useTitle'
 import { useScanLine } from '../lib/scanLine'
 
 /*
@@ -17,11 +18,20 @@ function SignIn() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [invite, setInvite] = useState('')
   const qc = useQueryClient()
   const navigate = useNavigate()
+  // Registration controls appear only once the server says registration is possible.
+  const settings = useQuery({ queryKey: ['settings'], queryFn: api.settings })
+  const registration = settings.data?.registration
+  const canRegister = registration === 'open' || registration === 'invite'
+  const registering = mode === 'register' && canRegister
   const m = useMutation({
-    mutationFn: () =>
-      mode === 'login' ? api.login(email, password) : api.register(email, password),
+    mutationFn: async () => {
+      if (registering)
+        await api.register(email, password, registration === 'invite' ? invite : undefined)
+      return api.login(email, password)
+    },
     onSuccess: (user) => {
       qc.setQueryData(['me'], user)
       navigate('/')
@@ -49,41 +59,54 @@ function SignIn() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </Field>
-        <Field label="Password" hint={mode === 'register' ? 'At least 10 characters.' : undefined}>
+        <Field label="Password" hint={registering ? 'At least 10 characters.' : undefined}>
           <input
             className={inputClass}
             type="password"
             aria-label="Password"
             required
-            minLength={mode === 'register' ? 10 : undefined}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            minLength={registering ? 10 : undefined}
+            autoComplete={registering ? 'new-password' : 'current-password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </Field>
+        {registering && registration === 'invite' ? (
+          <Field label="Invite code" hint="Registration on this server is by invitation.">
+            <input
+              className={inputClass}
+              required
+              autoComplete="off"
+              value={invite}
+              onChange={(e) => setInvite(e.target.value)}
+            />
+          </Field>
+        ) : null}
         {m.error ? (
           <ErrorBox
             error={m.error}
-            title={mode === 'login' ? 'Sign-in failed' : 'Could not create account'}
+            title={registering ? 'Could not create account' : 'Sign-in failed'}
           />
         ) : null}
         <Button variant="primary" type="submit" disabled={m.isPending} className="lp-cta w-full">
-          {m.isPending ? 'Please wait' : mode === 'login' ? 'Sign in' : 'Create account'}
+          {m.isPending ? 'Please wait' : registering ? 'Create account' : 'Sign in'}
         </Button>
       </form>
-      <p className="mt-4 text-sm text-muted">
-        {mode === 'login' ? 'No account?' : 'Already registered?'}{' '}
-        <button
-          type="button"
-          className="lp-link font-medium text-fg"
-          onClick={() => {
-            setMode(mode === 'login' ? 'register' : 'login')
-            m.reset()
-          }}
-        >
-          {mode === 'login' ? 'Create one' : 'Sign in'}
-        </button>
-      </p>
+      {canRegister ? (
+        <p className="mt-4 text-sm text-muted">
+          {mode === 'login' ? 'No account?' : 'Already registered?'}{' '}
+          <button
+            type="button"
+            className="lp-link font-medium text-fg"
+            onClick={() => {
+              setMode(mode === 'login' ? 'register' : 'login')
+              m.reset()
+            }}
+          >
+            {mode === 'login' ? 'Create one' : 'Sign in'}
+          </button>
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -128,6 +151,7 @@ const STAGES: [string, string, string][] = [
 ]
 
 export function LoginPage() {
+  useTitle(null)
   const root = useRef<HTMLDivElement>(null)
   useScanLine(root)
 

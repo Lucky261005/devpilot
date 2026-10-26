@@ -1,5 +1,26 @@
 # Local stack: PostgreSQL, API, a separate review worker, and the web UI on http://localhost:8080
-# Usage: cp .env.example .env  (set DEVPILOT_SECRET_KEY), then: docker compose up --build
+# Usage, from this directory (the repository root):
+#   1. cp .env.example .env      # Compose reads THIS .env (next to this file). backend/.env is only
+#                                # for running the backend without Docker and is not copied into images.
+#   2. In .env set DEVPILOT_SECRET_KEY (generate one with the command shown in .env.example).
+#   3. docker compose up --build
+#   4. Create your first account (registration is invite-only by default here, and needs
+#      DEVPILOT_INVITE_CODE; this command needs neither and is only available on the server):
+#        docker compose exec backend python -m app.cli create-user --email you@example.com
+# Production settings below override .env: DEVPILOT_ENV=production and DEVPILOT_COOKIE_SECURE=true
+# (required in production; browsers accept Secure cookies on http://localhost).
+#
+# Access: the web UI is published on 127.0.0.1:8080 only, over plain HTTP, so it is reachable from
+# this machine alone. Session cookies are Secure, and browsers only send them over HTTPS or to
+# localhost, so plain HTTP from another machine could not sign in anyway.
+# To use DevPilot from other machines, serve it over HTTPS with a reverse proxy running ON THIS HOST
+# (for example Caddy or nginx with your own certificate) that:
+#   - forwards to http://127.0.0.1:8080 and passes the original Host header;
+#   - sets X-Forwarded-For to the client address (replacing any value the client sent);
+# and set DEVPILOT_PUBLIC_ORIGIN=https://<your host> in .env. nginx in this stack trusts
+# X-Forwarded-For only from the Docker gateway (172.30.0.1), i.e. from processes on this host.
+# Optionally set DEVPILOT_HSTS_SECONDS once HTTPS is the only way in. Never publish port 8080 on
+# other interfaces: that would expose plain HTTP.
 services:
   db:
     image: postgres:16-alpine
@@ -9,7 +30,9 @@ services:
       POSTGRES_DB: devpilot
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U devpilot"]
+      # Over TCP: on first start the image's temporary init server listens on the socket only,
+      # so a socket check reports healthy before the real server is up.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U devpilot"]
       interval: 5s
       retries: 10
 
@@ -18,13 +41,24 @@ services:
     env_file: .env
     environment: &backend_env
       DEVPILOT_ENV: production
+      DEVPILOT_COOKIE_SECURE: "true"  # required outside development; overrides .env's dev value
       DEVPILOT_DATABASE_URL: postgresql+psycopg://devpilot:devpilot@db:5432/devpilot
       DEVPILOT_RUN_WORKER_IN_PROCESS: "false"
       DEVPILOT_DATA_DIR: /data  # must be the shared volume; overrides .env
-      DEVPILOT_FRONTEND_ORIGIN: http://localhost:8080
+      # Where the browser reaches DevPilot (used after GitHub sign-in). Compose-only setting so the
+      # development value in .env.example (DEVPILOT_FRONTEND_ORIGIN) cannot leak in.
+      DEVPILOT_FRONTEND_ORIGIN: ${DEVPILOT_PUBLIC_ORIGIN:-http://localhost:8080}
+      # Trust X-Forwarded-For only from nginx (the frontend service's fixed address below), so
+      # no other client can spoof its IP past the login/register throttling.
+      FORWARDED_ALLOW_IPS: 172.30.0.10
     volumes: [snapshots:/data]
     depends_on:
       db: { condition: service_healthy }
+    # Healthy only once uvicorn answers, which happens after `alembic upgrade head` (Dockerfile CMD).
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 5s
+      retries: 20
 
   worker:
     build: ./backend
@@ -33,13 +67,27 @@ services:
     command: ["python", "-m", "app.workers.queue"]
     volumes: [snapshots:/data]
     depends_on:
-      backend: { condition: service_started }
+      backend: { condition: service_healthy }  # the worker needs the migrated schema
 
   frontend:
     build: ./frontend
-    ports: ["8080:80"]
+    # The only published port, on loopback only (see Access above); the API is reachable only
+    # through nginx.
+    ports: ["127.0.0.1:8080:80"]
     depends_on: [backend]
+    networks:
+      default:
+        ipv4_address: 172.30.0.10  # must match FORWARDED_ALLOW_IPS above
 
 volumes:
   pgdata:
   snapshots:
+
+networks:
+  default:
+    ipam:
+      # Fixed subnet so nginx's address is set here, not left to chance. Change both addresses
+      # together if 172.30.0.0/24 collides with a network on the host.
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1  # host side of the network; nginx trusts X-Forwarded-For from here only

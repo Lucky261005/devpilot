@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { CodeView, DiffView } from '../components/CodeView'
+import { ReviewProgress } from '../components/ReviewProgress'
 import {
   Button,
   Card,
@@ -19,6 +20,8 @@ import {
   timeAgo,
 } from '../components/ui'
 import { api } from '../lib/api'
+import { suggestionKind } from '../lib/testSuggestions'
+import { useTitle } from '../lib/useTitle'
 import { SEVERITIES, type Finding, type Review, type Verdict } from '../lib/types'
 import { SeverityCounts } from './RepositoryPage'
 
@@ -240,8 +243,29 @@ function RunSummary({ review }: { review: Review }) {
           {s.head_sha ? (
             <p className="mt-1 font-mono text-xs text-faint">head {s.head_sha.slice(0, 10)}</p>
           ) : null}
+          {s.findings ? (
+            <p className="mt-1 text-muted">
+              {s.findings.static} analyzer finding{s.findings.static === 1 ? '' : 's'} (rule-based)
+              {ai?.status === 'completed'
+                ? ` · ${s.findings.ai} LLM finding${s.findings.ai === 1 ? '' : 's'} (model suggestions)`
+                : ''}
+            </p>
+          ) : null}
           {s.duplicates_dropped ? (
             <p className="mt-1 text-muted">{s.duplicates_dropped} duplicate findings merged</p>
+          ) : null}
+          {s.files_without_patch?.length ? (
+            <p className="mt-1 text-warn" title={s.files_without_patch.join('\n')}>
+              {s.files_without_patch.length} changed file
+              {s.files_without_patch.length === 1 ? '' : 's'} had no patch from GitHub (diff too
+              large), so findings there could not be limited to changed lines and were left out.
+            </p>
+          ) : null}
+          {s.pr_files_truncated ? (
+            <p className="mt-1 text-warn">
+              This pull request has more files than DevPilot reads; only the first ones were
+              reviewed.
+            </p>
           ) : null}
         </div>
         <div className="md:pl-6">
@@ -276,6 +300,15 @@ function RunSummary({ review }: { review: Review }) {
                   <span className="font-medium">{ai.model}</span>: {ai.accepted} of {ai.returned}{' '}
                   findings passed source validation
                 </p>
+                {ai.files_in_context !== undefined ? (
+                  <p className="text-xs text-muted">
+                    The model saw {ai.files_in_context} of {s.files_reviewed ?? '?'} reviewed files
+                    {ai.files_partial?.length
+                      ? `; ${ai.files_partial.length} only as excerpts`
+                      : ''}
+                    {ai.files_omitted?.length ? `; ${ai.files_omitted.length} not at all` : ''}.
+                  </p>
+                ) : null}
                 {ai.rejected?.length ? (
                   <details>
                     <summary className="cursor-pointer text-xs text-muted">
@@ -319,9 +352,6 @@ function RunSummary({ review }: { review: Review }) {
                 <p className="text-xs text-faint">
                   {ai.input_tokens ?? '?'} in / {ai.output_tokens ?? '?'} out tokens ·{' '}
                   {((ai.latency_ms ?? 0) / 1000).toFixed(1)} s
-                  {ai.files_omitted?.length
-                    ? ` · ${ai.files_omitted.length} files omitted for size`
-                    : ''}
                 </p>
               </>
             ) : null}
@@ -329,7 +359,13 @@ function RunSummary({ review }: { review: Review }) {
         </div>
       </div>
       {ai?.summary ? (
-        <p className="border-t border-line px-5 py-4 text-sm text-muted lg:px-6">{ai.summary}</p>
+        <p className="border-t border-line px-5 py-4 text-sm text-muted lg:px-6">
+          <span className="font-medium text-fg">LLM summary</span>{' '}
+          <span className="text-xs text-faint">
+            (the model&apos;s own words, not a verification)
+          </span>
+          : {ai.summary}
+        </p>
       ) : null}
     </Card>
   )
@@ -345,6 +381,14 @@ export function ReviewPage() {
     refetchInterval: (q) =>
       q.state.data && ['queued', 'running'].includes(q.state.data.status) ? 1500 : false,
   })
+  const status = review.data?.status
+  useTitle(
+    review.error
+      ? 'Review unavailable'
+      : status
+        ? `Review #${id} · ${status[0].toUpperCase()}${status.slice(1)}`
+        : `Review #${id}`,
+  )
   const done = review.data?.status === 'completed'
   const findings = useQuery({
     queryKey: ['findings', id],
@@ -427,18 +471,9 @@ export function ReviewPage() {
         actions={done ? <SeverityCounts counts={r.severity_counts} /> : null}
       />
 
-      {r.status === 'queued' || r.status === 'running' ? (
-        <Card className="px-6 py-12 text-center">
-          <div
-            aria-hidden
-            className="activity-bar mx-auto mb-5 h-0.5 w-40 overflow-hidden rounded-full bg-line"
-          />
-          <p className="text-base font-semibold" role="status" aria-live="polite">
-            {r.status === 'queued'
-              ? 'Waiting for a worker'
-              : `Running: ${r.stage?.replace('_', ' ') ?? 'starting'}`}
-          </p>
-          <p className="mt-1 text-sm text-muted">This page updates automatically.</p>
+      {r.status === 'queued' || r.status === 'running' || r.status === 'failed' ? (
+        <Card className="mb-6">
+          <ReviewProgress review={r} now={review.dataUpdatedAt} />
         </Card>
       ) : null}
       {r.status === 'failed' ? (
@@ -516,8 +551,9 @@ export function ReviewPage() {
                 {findings.data && !findings.data.length ? (
                   <div className="p-5">
                     <Empty title="No findings">
-                      Analyzers{r.use_ai ? ' and the LLM review' : ''} reported nothing actionable
-                      for the reviewed code.
+                      The analyzers&apos; rules{r.use_ai ? ' and the LLM review' : ''} flagged
+                      nothing in the reviewed code. That does not prove the code is free of defects;
+                      it means none of the checks that ran found one.
                     </Empty>
                   </div>
                 ) : null}
@@ -616,30 +652,45 @@ export function ReviewPage() {
                   </Empty>
                 ) : null}
                 <p className="text-xs text-muted">
-                  Suggestions are previews to adapt. DevPilot never runs them.
+                  Test code is a suggestion to review, and test gaps name untested functions whose
+                  inputs and expected results DevPilot cannot infer. DevPilot never runs either.
                 </p>
-                {tests.data?.map((t) => (
-                  <div key={t.id} className="overflow-hidden rounded-control border border-line">
-                    <div className="flex flex-wrap items-center gap-2 border-b border-line bg-subtle px-3.5 py-2">
-                      <SourceBadge source={t.source} />
-                      <span className="min-w-0 truncate font-mono text-xs font-medium">
-                        {t.target}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="ml-auto"
-                        onClick={() => navigator.clipboard?.writeText(t.test_code)}
-                      >
-                        Copy
-                      </Button>
+                {tests.data?.map((t) => {
+                  const kind = suggestionKind(t.test_code)
+                  return (
+                    <div key={t.id} className="overflow-hidden rounded-control border border-line">
+                      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-subtle px-3.5 py-2">
+                        <SourceBadge source={t.source} />
+                        {kind === 'gap' ? <Pill>Test gap</Pill> : null}
+                        {kind === 'scaffold' ? <Pill tone="warn">Incomplete scaffold</Pill> : null}
+                        <span className="min-w-0 truncate font-mono text-xs font-medium">
+                          {t.target}
+                        </span>
+                        {kind !== 'gap' ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-auto"
+                            onClick={() => navigator.clipboard?.writeText(t.test_code)}
+                          >
+                            Copy
+                          </Button>
+                        ) : null}
+                      </div>
+                      <p className={`px-4 text-sm text-muted ${kind === 'gap' ? 'py-3' : 'pt-3'}`}>
+                        {t.rationale}
+                        {kind === 'scaffold'
+                          ? ' This is a template with placeholders, not a runnable test.'
+                          : ''}
+                      </p>
+                      {kind !== 'gap' ? (
+                        <pre className="overflow-auto px-4 py-3 font-mono text-xs leading-5">
+                          {t.test_code}
+                        </pre>
+                      ) : null}
                     </div>
-                    <p className="px-4 pt-3 text-sm text-muted">{t.rationale}</p>
-                    <pre className="overflow-auto px-4 py-3 font-mono text-xs leading-5">
-                      {t.test_code}
-                    </pre>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : null}
           </Card>

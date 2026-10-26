@@ -19,7 +19,7 @@ test('import an archive, review it, inspect a finding, give feedback', async ({ 
   await page.getByLabel('Archive').setInputFiles(zip)
   await page.getByRole('button', { name: 'Import repository' }).click()
   await expect(page.getByRole('heading', { name: 'inventory-e2e' })).toBeVisible()
-  await expect(page.getByText('Files indexed')).toBeVisible()
+  await expect(page.getByText(/files? · .* · indexed/)).toBeVisible()
 
   // Search
   await page.getByRole('tab', { name: 'Search' }).click()
@@ -30,7 +30,7 @@ test('import an archive, review it, inspect a finding, give feedback', async ({ 
 
   // Review
   await page.getByRole('button', { name: 'Start review' }).click()
-  await expect(page.getByText('completed')).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByText('completed', { exact: true })).toBeVisible({ timeout: 30_000 })
   const findings = page.getByRole('list', { name: 'Findings' })
   await expect(findings.getByText('B602: subprocess_popen_with_shell_equals_true')).toBeVisible()
 

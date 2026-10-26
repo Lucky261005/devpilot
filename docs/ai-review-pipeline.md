@@ -29,8 +29,14 @@ prompt, user prompt and `AIReview` schema, and both results go through the same 
 - **Regions per file** (`regions_for_patch`): for each diff hunk, the enclosing Python function(s)
   found with `ast` (if shorter than 200 lines), plus the hunk padded by 15 lines. Overlapping
   ranges are merged. Whole-repository reviews send whole files.
-- **Budget**: blocks are added until `DEVPILOT_LLM_MAX_CONTEXT_CHARS` (default 60 000) would be
-  exceeded; remaining files go to `omitted_files`, the prompt says so, and the UI shows the count.
+- **Budget**: the code budget is `DEVPILOT_LLM_MAX_CONTEXT_CHARS` (default 60 000), lowered for
+  Ollama to fit `DEVPILOT_OLLAMA_NUM_CTX`. Files that fit whole are added first, in order. Each
+  file that does not fit then gets an even share of what is left as an **excerpt**: the regions
+  around its analyzer findings (±15 lines), then as much of the start of the file as fits, with the
+  file's own line numbers and an `EXCERPT` marker (`partial_files`). A file is in `omitted_files`
+  only when fewer than 20 lines would fit. Related code is capped at the remaining budget. The
+  prompt names both cases, and the review page shows how many files the model saw whole, in part,
+  or not at all. Whole-repository reviews state their scope in the prompt (there is no diff).
 
 The result is a `ContextBundle` whose `shown` map (`path → [(start, end)]`) records exactly which
 lines the model saw. Validation uses it later.
@@ -196,7 +202,7 @@ Test suggestions are kept only if their path was in the context.
 | Context selection, ordering, budget | Whether the model complies with the prompt |
 | Schema validation, citation and evidence checks | |
 | Deduplication rules | |
-| Static test-suggestion skeletons | |
+| Static test suggestions (test gaps, doctest-based tests) | |
 
 ## Prompt-injection mitigation
 

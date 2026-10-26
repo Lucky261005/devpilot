@@ -281,6 +281,25 @@ def exchange_code(
     return _token_set(_token_request(settings, {"code": code, "redirect_uri": redirect_uri}, transport), now)
 
 
+def revoke_grant(settings: Settings, access_token: str, transport: httpx.BaseTransport | None = None) -> bool:
+    """Revoke the user's authorization of this GitHub App (every access and refresh token it holds).
+
+    Uses DELETE /applications/{client_id}/grant with the App's client credentials. Returns True only
+    when GitHub confirms with 204; any other answer or a network error returns False."""
+    try:
+        with httpx.Client(base_url=settings.github_api_url, timeout=10.0, transport=transport) as c:
+            r = c.request(
+                "DELETE",
+                f"/applications/{quote(settings.github_client_id, safe='')}/grant",
+                auth=(settings.github_client_id, settings.github_client_secret),
+                json={"access_token": access_token},
+                headers={"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"},
+            )
+    except httpx.TransportError:
+        return False
+    return r.status_code == 204
+
+
 def refresh_tokens(
     settings: Settings, refresh_token: str, now: datetime, transport: httpx.BaseTransport | None = None
 ) -> TokenSet:

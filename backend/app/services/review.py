@@ -51,6 +51,9 @@ def _prepare_local_diff(job: ReviewJob, repo: Repository, settings: Settings) ->
     return root, parse_unified_diff(ingestion.git_diff(src, base, head))
 
 
+MAX_PR_FILES = 300  # files read from a PR's file list; larger PRs are reviewed in part and flagged
+
+
 def _prepare_pull_request(
     db: Session, job: ReviewJob, repo: Repository, settings: Settings, github_factory: Callable
 ) -> tuple[Path, list[FilePatch]]:
@@ -67,7 +70,13 @@ def _prepare_pull_request(
     gh = github_factory(token, settings)
     meta = gh.pull(repo.source_ref, pr.number)
     pr.head_sha, pr.base_sha, pr.title = meta["head_sha"], meta["base_sha"], meta["title"]
-    files = gh.pull_files(repo.source_ref, pr.number)
+    files = gh.pull_files(repo.source_ref, pr.number, max_files=MAX_PR_FILES)
+    # The file list describes the PR's current head; if a push landed between the two reads it
+    # would not match the snapshot downloaded below.
+    if gh.pull(repo.source_ref, pr.number)["head_sha"] != pr.head_sha:
+        raise ingestion.IngestionError(
+            "The pull request received new commits while the review was being prepared. Run the review again."
+        )
     root = ingestion.new_snapshot_dir(settings, repo.id, f"review-{job.id}")
     with tempfile.TemporaryDirectory() as tmp:
         zpath = Path(tmp) / "head.zip"
@@ -80,7 +89,12 @@ def _prepare_pull_request(
             parse_hunks(f["patch"], fp)
         fp.additions, fp.deletions = f["additions"], f["deletions"]
         patches.append(fp)
-    job.stats = {**job.stats, "base_sha": pr.base_sha, "head_sha": pr.head_sha}
+    job.stats = {
+        **job.stats,
+        "base_sha": pr.base_sha,
+        "head_sha": pr.head_sha,
+        "pr_files_truncated": len(files) >= MAX_PR_FILES,
+    }
     return root, patches
 
 
@@ -135,6 +149,10 @@ def run_review(
             if fp.status != "deleted" and fp.path in lang:
                 by_path[fp.path] = fp
         targets = list(by_path)
+        # GitHub sends no patch for very large diffs; with no changed lines known, findings in
+        # these files cannot be scoped and are left out. Record it rather than drop them silently.
+        no_patch = sorted(p for p, fp in by_path.items() if not fp.patch and fp.additions + fp.deletions)
+        job.stats = {**job.stats, "files_without_patch": no_patch[:50]}
     else:
         targets = list(lang)
 
@@ -200,6 +218,7 @@ def run_review(
                     "context_chars": ctx.chars,
                     "files_in_context": len(ctx.shown),
                     "files_omitted": ctx.omitted_files[:50],
+                    "files_partial": ctx.partial_files[:50],
                     "prompt_version": settings.llm_prompt_version,
                     "context_mode": settings.llm_context,
                     "related_code": ctx.related,

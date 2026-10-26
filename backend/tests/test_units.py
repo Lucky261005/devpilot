@@ -200,9 +200,9 @@ def test_static_test_suggestions_cover_untested_changed_functions(tmp_path):
     (tmp_path / "tests" / "test_m.py").write_text("from pkg.m import tested\n")
     out = suggest_for_changes(tmp_path, {"pkg/m.py": {6, 7}}, ["tests/test_m.py"])
     assert [s.target for s in out] == ["pkg/m.py::parse"]
-    code = out[0].test_code
-    assert "from pkg.m import parse" in code and "pytest.raises(ValueError)" in code
-    compile(code, "suggestion.py", "exec")  # skeleton is valid Python
+    # No expected values can be inferred, so this is a test gap, not placeholder code.
+    assert out[0].test_code == ""
+    assert "`parse(s, strict)`" in out[0].rationale and "`ValueError`" in out[0].rationale
 
 
 def test_log_redaction_removes_tokens():

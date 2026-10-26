@@ -1,3 +1,7 @@
+import hashlib
+import math
+from datetime import UTC, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -6,23 +10,27 @@ from app.analyzers.base import SEVERITIES
 from app.api.deps import current_user, owned_repo, owned_review
 from app.api.repositories import read_snapshot_file
 from app.core.config import Settings, get_settings
-from app.core.db import get_db
-from app.core.ratelimit import limiter
+from app.core.db import get_db, serialize
 from app.models import (
     AuditEvent,
     ChangedFile,
     Finding,
     FindingFeedback,
     PullRequest,
+    Repository,
+    ReviewAdmission,
     ReviewJob,
+    ReviewQuotaEvent,
     TestSuggestion,
     User,
+    utcnow,
 )
 from app.schemas import (
     ChangedFileOut,
     FeedbackIn,
     FileContent,
     FindingOut,
+    RecentReviewOut,
     ReviewIn,
     ReviewOut,
     TestSuggestionOut,
@@ -47,6 +55,59 @@ def _review_out(db: Session, job: ReviewJob) -> ReviewOut:
     return out
 
 
+GLOBAL_WINDOW = timedelta(hours=1)
+
+
+USER_WINDOW = timedelta(hours=1)
+
+
+def _admit_user_review(db: Session, user: User, limit: int) -> ReviewQuotaEvent:
+    """Admit one review under the user's hourly quota and record it, or raise 429. Same lock, count,
+    insert rule as the import quota (api/repositories.py `_check_quota`): reviews for one user are
+    serialized across API processes, so at most `limit` are admitted per rolling hour. A refused
+    request leaves no record."""
+    serialize(db, hashlib.sha256(f"review:{user.id}".encode()).hexdigest())
+    now = utcnow()
+    mine = ReviewQuotaEvent.user_id == user.id
+    db.query(ReviewQuotaEvent).filter(mine, ReviewQuotaEvent.expires_at <= now).delete()
+    if db.query(func.count(ReviewQuotaEvent.id)).filter(mine, ReviewQuotaEvent.expires_at > now).scalar() >= limit:
+        db.commit()  # keeps the expired-row cleanup, releases the lock
+        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Review limit reached. Try again later.")
+    event = ReviewQuotaEvent(user_id=user.id, expires_at=now + USER_WINDOW)
+    db.add(event)
+    db.commit()
+    return event
+
+
+def _admit_review(db: Session, cap: int) -> None:
+    """Admit one review job under the installation-wide cap, or raise 429.
+
+    The admission is recorded and committed before counting, so every request counts all
+    admissions committed before it: on both SQLite (one writer at a time) and PostgreSQL (READ
+    COMMITTED; each COUNT sees everything committed before it starts), at most `cap` reviews are
+    admitted per rolling hour. Requests racing at the boundary may be refused early, never
+    admitted late. A refused request removes its own record, so refusals use no capacity."""
+    now = utcnow()
+    cutoff = now - GLOBAL_WINDOW
+    db.query(ReviewAdmission).filter(ReviewAdmission.created_at <= cutoff).delete()
+    admission = ReviewAdmission(created_at=now)
+    db.add(admission)
+    db.commit()
+    in_window = db.query(ReviewAdmission.created_at).filter(ReviewAdmission.created_at > cutoff)
+    if in_window.count() > cap:
+        db.delete(admission)
+        db.commit()
+        # Nothing else in the window only when cap is 0 (rejected by Settings, ge=1): retry in a full window.
+        oldest = min((c for (c,) in in_window.all()), default=now)
+        oldest = oldest if oldest.tzinfo else oldest.replace(tzinfo=UTC)
+        retry = max(1, math.ceil((oldest + GLOBAL_WINDOW - now).total_seconds()))
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            "This server has reached its hourly review limit. Try again later.",
+            headers={"Retry-After": str(retry)},
+        )
+
+
 @router.post("/api/repositories/{repo_id}/reviews", response_model=ReviewOut, status_code=202)
 def create_review(
     repo_id: int,
@@ -64,14 +125,19 @@ def create_review(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Pull request reviews need a GitHub repository and pr_number.")
     if body.use_ai and not repo.ai_review_allowed:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Enable AI review for this repository before requesting it.")
-    if not limiter.allow(("review", user.id), limit=settings.reviews_per_hour, window_s=3600):
-        raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Review limit reached. Try again later.")
     pr_id = None
     if body.kind == "pull_request":
         pr = db.query(PullRequest).filter_by(repository_id=repo.id, number=body.pr_number).one_or_none()
         if pr is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, "Open the pull request before reviewing it.")
         pr_id = pr.id
+    quota = _admit_user_review(db, user, settings.reviews_per_hour)
+    try:
+        _admit_review(db, settings.reviews_global_per_hour)  # last check: nothing after it can refuse
+    except HTTPException:
+        db.delete(quota)  # refused by the installation cap: give the user's slot back
+        db.commit()
+        raise
     job = ReviewJob(
         repository_id=repo.id,
         kind=body.kind,
@@ -111,6 +177,26 @@ def list_reviews(
         .offset(offset)
     ).all()
     return [_review_out(db, j) for j in jobs]
+
+
+# Declared before /api/reviews/{review_id} so "recent" is not parsed as an id.
+@router.get("/api/reviews/recent", response_model=list[RecentReviewOut])
+def recent_reviews(
+    limit: int = Query(default=5, ge=1, le=20),
+    db: Session = Depends(get_db),
+    user: User = Depends(current_user),
+):
+    rows = db.execute(
+        select(ReviewJob, Repository.name)
+        .join(Repository, ReviewJob.repository_id == Repository.id)
+        .where(Repository.owner_id == user.id)
+        .order_by(ReviewJob.created_at.desc(), ReviewJob.id.desc())
+        .limit(limit)
+    ).all()
+    fields = set(RecentReviewOut.model_fields) - {"repository_name"}
+    return [
+        RecentReviewOut(**_review_out(db, job).model_dump(include=fields), repository_name=name) for job, name in rows
+    ]
 
 
 @router.get("/api/reviews/{review_id}", response_model=ReviewOut)

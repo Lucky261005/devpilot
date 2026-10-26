@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.core.config import get_settings
@@ -34,3 +34,11 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+def serialize(db: Session, key: str) -> None:
+    """Serialize the rest of this transaction with others for the same hex key, across API processes:
+    a PostgreSQL advisory lock released at commit. On SQLite the callers' opening DELETE takes the
+    database write lock, which does the same."""
+    if db.get_bind().dialect.name == "postgresql":
+        db.execute(text("SELECT pg_advisory_xact_lock(:k)"), {"k": int(key[:15], 16)})

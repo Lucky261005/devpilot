@@ -2,6 +2,7 @@
 
 import base64
 import hashlib
+import hmac
 import secrets
 
 from argon2 import PasswordHasher
@@ -31,6 +32,22 @@ def new_session_token() -> str:
 def hash_token(token: str) -> str:
     # Session tokens are high-entropy, so a fast hash is sufficient (no need for argon2).
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+def account_key(email: str) -> str:
+    """Keyed hash of a normalized email, used to throttle sign-ins without storing the email.
+
+    Keyed with DEVPILOT_SECRET_KEY (required outside development) so stored keys cannot be
+    reversed by hashing a list of candidate emails."""
+    secret = (get_settings().secret_key or "devpilot-development-only").encode()
+    return hmac.new(secret, b"login:" + email.strip().lower().encode(), hashlib.sha256).hexdigest()
+
+
+def ip_key(ip: str) -> str:
+    """Keyed hash of a client IP, so per-IP limits never store the address. Same key as account_key:
+    without DEVPILOT_SECRET_KEY the small IPv4 space could otherwise be hashed and matched."""
+    secret = (get_settings().secret_key or "devpilot-development-only").encode()
+    return hmac.new(secret, b"ip:" + ip.strip().lower().encode(), hashlib.sha256).hexdigest()
 
 
 def _fernet() -> Fernet:

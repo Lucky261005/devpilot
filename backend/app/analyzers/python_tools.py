@@ -23,13 +23,33 @@ RUFF_LIMITATIONS = {
     "SIM115": "Also fires when the file is closed later, wrapped in `with` a few lines below, or "
     "deliberately kept open for an object's lifetime. Check whether it can leak before changing it.",
 }
-RUFF_CATEGORY = {"B": "bug", "F": "bug", "E722": "error_handling", "ASYNC": "bug", "SIM115": "resource"}
+# Rules in the selected families that indicate a likely runtime defect. Everything else Ruff reports
+# (unused imports, B905 zip() without strict=, B904 raise without from, ...) is a code-quality
+# concern: category "maintainability", severity "low". Unlisted rules fall there by default.
+RUFF_BUG = RUFF_HIGH | {
+    # pyflakes: format strings that fail at runtime, impossible comparisons, misplaced statements
+    *(f"F{n}" for n in (501, 502, 503, 504, 505, 506, 507, 508, 509, 521, 522, 523, 524, 525)),
+    "F601", "F602", "F631", "F632", "F633", "F701", "F702", "F704", "F706", "F707", "F822",
+    # bugbear: mutable/call defaults, loop-variable closures, silent no-ops, unreachable handlers
+    "B002", "B003", "B006", "B008", "B012", "B015", "B016", "B017", "B018", "B020", "B023", "B025",
+    "B026", "B029", "B030", "B031", "B032", "B033", "B034", "B035",
+}  # fmt: skip
+RUFF_PREFIX_CATEGORY = {"E9": "bug", "PLE": "bug", "ASYNC": "bug", "RUF": "bug"}
+RUFF_CATEGORY = {"E722": "error_handling", "SIM115": "resource"}
 
 
-def _ruff_severity(code: str, prefix: str) -> str:
+def _ruff_category(code: str, prefix: str) -> str:
+    if code in RUFF_CATEGORY:
+        return RUFF_CATEGORY[code]
+    if code in RUFF_BUG or code.startswith("E9"):
+        return "bug"
+    return RUFF_PREFIX_CATEGORY.get(prefix, "maintainability")
+
+
+def _ruff_severity(code: str, category: str) -> str:
     if code in RUFF_HIGH:
         return "high"
-    return "medium" if prefix in ("F", "B") or code == "E722" else "low"
+    return "medium" if category in ("bug", "error_handling", "resource") else "low"
 
 
 def _rel(root: Path, filename: str) -> str:
@@ -74,7 +94,7 @@ class RuffAnalyzer:
                 start = item["location"]["row"]
                 end = max(item["end_location"]["row"], start)
                 prefix = code.rstrip("0123456789")
-                category = RUFF_CATEGORY.get(code) or RUFF_CATEGORY.get(prefix, "bug")
+                category = _ruff_category(code, prefix)
                 fix = item.get("fix") or {}
                 out.append(
                     NormalizedFinding(
@@ -84,14 +104,14 @@ class RuffAnalyzer:
                         rule_id=code,
                         title=f"{code}: {item.get('name', code)}",
                         description=item["message"],
-                        severity=_ruff_severity(code, prefix),
+                        severity=_ruff_severity(code, category),
                         category=category,
                         path=path,
                         start_line=start,
                         end_line=end,
                         evidence=evidence_from(root, path, start, end),
                         suggested_fix=fix.get("message"),
-                        confidence="high",
+                        confidence=None,  # Ruff reports no confidence; do not invent one
                         limitations=RUFF_LIMITATIONS.get(
                             code, "Lint rule matched syntactically; it does not know runtime intent."
                         ),

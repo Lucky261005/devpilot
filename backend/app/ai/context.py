@@ -92,6 +92,7 @@ class ContextBundle:
     # path -> line ranges shown to the model; AI findings must cite inside these.
     shown: dict[str, list[tuple[int, int]]] = field(default_factory=dict)
     omitted_files: list[str] = field(default_factory=list)
+    partial_files: list[str] = field(default_factory=list)  # too large to show whole; excerpt shown
     related: list[str] = field(default_factory=list)  # "path:start-end (why)" shown as related code
     chars: int = 0
 
@@ -129,6 +130,44 @@ def _render(path: str, lines: list[str], ranges: list[tuple[int, int]], added: s
             mark = "+" if ln in added else " "
             parts.append(f"{mark}{ln:5d} | {lines[ln - 1]}")
     return "\n".join(parts)
+
+
+EXCERPT_NOTE = "(EXCERPT: file too large to show whole; only the line ranges below are included)"
+EXCERPT_PAD = 15  # lines of context kept around each static finding
+MIN_EXCERPT_LINES = 20  # below this an excerpt is too thin to review; the file is omitted instead
+
+
+def _excerpt(
+    path: str, lines: list[str], ranges: list[tuple[int, int]], added: set[int], hot: set[int], budget: int
+) -> list[tuple[int, int]]:
+    """The most useful part of `ranges` that renders within `budget` characters: the regions around
+    static findings first, then as much of the start of the file as still fits. Empty if too thin."""
+
+    def clip(s: int, e: int) -> list[tuple[int, int]]:
+        return [(max(s, a), min(e, b)) for a, b in ranges if max(s, a) <= min(e, b)]
+
+    def fits(rs: list[tuple[int, int]]) -> bool:
+        return len(_render(path, lines, rs, added)) <= budget
+
+    picked: list[tuple[int, int]] = []
+    for ln in sorted(hot):
+        trial = _merge(picked + clip(ln - EXCERPT_PAD, ln + EXCERPT_PAD))
+        if fits(trial):
+            picked = trial
+    # Grow a window from the first shown line; every rendered line costs at least 9 characters,
+    # which bounds the search so a huge file is never rendered whole.
+    first = ranges[0][0]
+    lo, hi = 0, min(sum(e - s + 1 for s, e in ranges), max(budget, 0) // 9)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if fits(_merge(picked + clip(first, first + mid - 1))):
+            lo = mid
+        else:
+            hi = mid - 1
+    picked = _merge(picked + clip(first, first + lo - 1)) if lo else picked
+    total = sum(e - s + 1 for s, e in ranges)
+    shown = sum(e - s + 1 for s, e in picked)
+    return picked if shown >= min(MIN_EXCERPT_LINES, total) else []
 
 
 def _covered(path: str, start: int, end: int, shown: dict[str, list[tuple[int, int]]]) -> bool:
@@ -180,6 +219,8 @@ def build_context(
     bundle = ContextBundle(user_prompt="")
     blocks: list[str] = []
     used = 0
+    # Pass 1: files that fit whole, in order. Oversized ones wait for pass 2 instead of being dropped.
+    oversized: list[tuple[str, list[str], list[tuple[int, int]], set[int]]] = []
     for path, language, fp in targets:
         try:
             source = (root / path).read_text(encoding="utf-8", errors="replace")
@@ -189,17 +230,35 @@ def build_context(
         if not lines:
             continue
         ranges = regions_for_patch(source, fp, language) if fp else [(1, len(lines))]
-        block = _render(path, lines, ranges, fp.added_lines if fp else set())
+        added = fp.added_lines if fp else set()
+        block = _render(path, lines, ranges, added)
         if used + len(block) > max_chars:
-            bundle.omitted_files.append(path)
+            oversized.append((path, lines, ranges, added))
             continue
         used += len(block)
         blocks.append(block)
         bundle.shown[path] = ranges
 
+    # Pass 2: each oversized file gets an even share of what is left, as an excerpt.
+    hot: dict[str, set[int]] = {}
+    for f in static_findings:
+        hot.setdefault(f.path, set()).add(f.start_line)
+    for i, (path, lines, ranges, added) in enumerate(oversized):
+        header = f"FILE {path}\n{EXCERPT_NOTE}"
+        share = (max_chars - used) // (len(oversized) - i) - len(EXCERPT_NOTE) - 1
+        picked = _excerpt(path, lines, ranges, added, hot.get(path, set()), share)
+        if not picked:
+            bundle.omitted_files.append(path)
+            continue
+        block = _render(path, lines, picked, added).replace(f"FILE {path}", header, 1)
+        used += len(block)
+        blocks.append(block)
+        bundle.shown[path] = picked
+        bundle.partial_files.append(path)
+
     if tools is not None:
         changed = {path: fp.added_lines for path, _, fp in targets if fp is not None and path in bundle.shown}
-        budget = int(max_chars * RELATED_SHARE)
+        budget = min(int(max_chars * RELATED_SHARE), max_chars - used)
         for path, start, end, why in related_code(tools, dict(bundle.shown), changed):
             lines = tools.read_lines(path)
             end = min(end, len(lines))
@@ -222,17 +281,31 @@ def build_context(
     ][:50]
     tests = "\n".join(f"- {t}" for t in test_files[:30]) or "(none found)"
     content = neutralize("\n\n".join(blocks))
+    # The system prompts (versioned for evaluation) speak of "the change"; a whole-repository review
+    # has no diff, so say so here instead of rewording them.
+    whole = all(fp is None for _, _, fp in targets)
+    scope = (
+        "Scope: whole-repository review. There is no diff and no line is marked '+'; every line "
+        "shown is in scope, and 'the change' in your instructions means the code shown.\n\n"
+        if whole
+        else "Lines prefixed with '+' were added or changed in this review.\n\n"
+    )
     bundle.user_prompt = (
         f"Review: {neutralize(title)}\n"
-        "Lines prefixed with '+' were added or changed in this review.\n\n"
+        f"{scope}"
         f"STATIC ANALYSIS RESULTS (already reported):\n{chr(10).join(static_lines) or '(none)'}\n\n"
         f"EXISTING TEST FILES:\n{neutralize(tests)}\n\n"
         f"<{TAG}>\n{content}\n</{TAG}>\n\n"
         "Return your review in the required structured format."
     )
+    if bundle.partial_files:
+        bundle.user_prompt += (
+            f"\n\nNote: {len(bundle.partial_files)} large files are shown only in part (see the line "
+            "ranges); do not report on lines you were not shown."
+        )
     if bundle.omitted_files:
         bundle.user_prompt += (
-            f"\n\nNote: {len(bundle.omitted_files)} changed files were omitted for size; "
+            f"\n\nNote: {len(bundle.omitted_files)} {'' if whole else 'changed '}files were omitted for size; "
             "do not report on files you were not shown."
         )
     bundle.chars = len(bundle.user_prompt)

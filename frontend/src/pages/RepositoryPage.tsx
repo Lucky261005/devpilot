@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { AskRepository } from '../components/AskRepository'
 import { CodeView, DiffView } from '../components/CodeView'
 import {
   Button,
@@ -21,6 +22,7 @@ import {
   timeAgo,
 } from '../components/ui'
 import { api } from '../lib/api'
+import { useTitle } from '../lib/useTitle'
 import { SEVERITIES, SOURCE_LABEL, type Repository, type Review } from '../lib/types'
 
 function AiConsent({ repo }: { repo: Repository }) {
@@ -45,7 +47,7 @@ function AiConsent({ repo }: { repo: Repository }) {
           <span className="font-medium">Allow LLM review for this repository</span>
           <span className="block text-muted">
             When a review requests it, excerpts of changed files (up to the context limit) are sent
-            to{' '}
+            to the model; questions in the Ask tab send the matching excerpts. The model is{' '}
             {llm?.configured ? (
               <b>
                 {llm.provider} ({llm.model})
@@ -410,6 +412,7 @@ export function RepositoryPage() {
   const qc = useQueryClient()
   const navigate = useNavigate()
   const repo = useQuery({ queryKey: ['repo', id], queryFn: () => api.repository(id) })
+  useTitle(repo.data?.name ?? (repo.error ? 'Repository unavailable' : 'Repository'))
   const [confirming, setConfirming] = useState(false)
   const del = useMutation({
     mutationFn: () => api.deleteRepository(id),
@@ -424,6 +427,7 @@ export function RepositoryPage() {
   const tabs: { id: string; label: string }[] = [
     { id: 'reviews', label: 'Review history' },
     { id: 'search', label: 'Search code' },
+    { id: 'ask', label: 'Ask' },
     ...(r.source_type === 'github' ? [{ id: 'pulls', label: 'Pull requests' }] : []),
   ]
   const skipped = Object.entries(r.skipped ?? {})
@@ -447,6 +451,15 @@ export function RepositoryPage() {
               <span className="font-mono text-xs text-faint" title={r.source_sha}>
                 {r.source_sha.slice(0, 7)}
               </span>
+            ) : null}
+            {r.index_status === 'ready' ? (
+              <p className="basis-full text-xs text-muted tabular-nums">
+                {r.file_count} {r.file_count === 1 ? 'file' : 'files'} ·{' '}
+                {formatBytes(r.total_bytes)} · indexed {timeAgo(r.indexed_at)}
+                {skipped.length
+                  ? ` · skipped ${skipped.map(([k, v]) => `${v} ${k.replace('_', ' ')}`).join(', ')}`
+                  : ''}
+              </p>
             ) : null}
           </>
         }
@@ -483,33 +496,9 @@ export function RepositoryPage() {
                 <StartReview repo={r} key={String(r.ai_review_allowed)} />
               </div>
             </Card>
-            <Card
-              className="rise-in"
-              style={{ '--i': 1 } as CSSProperties}
-              title="Index and LLM access"
-            >
-              <div className="space-y-5 p-5">
-                <dl className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <dt className="text-xs text-faint">Files indexed</dt>
-                    <dd className="mt-0.5 text-lg font-semibold tabular-nums">{r.file_count}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs text-faint">Size</dt>
-                    <dd className="mt-0.5 text-lg font-semibold tabular-nums">
-                      {formatBytes(r.total_bytes)}
-                    </dd>
-                  </div>
-                  <div className="col-span-2 text-xs text-muted">
-                    Indexed {timeAgo(r.indexed_at)}
-                    {skipped.length
-                      ? ` · skipped ${skipped.map(([k, v]) => `${v} ${k.replace('_', ' ')}`).join(', ')}`
-                      : ''}
-                  </div>
-                </dl>
-                <div className="border-t border-line pt-5">
-                  <AiConsent repo={r} />
-                </div>
+            <Card className="rise-in" style={{ '--i': 1 } as CSSProperties} title="LLM access">
+              <div className="p-5">
+                <AiConsent repo={r} />
               </div>
             </Card>
           </div>
@@ -522,6 +511,7 @@ export function RepositoryPage() {
             />
             {tab === 'reviews' ? <ReviewHistory repoId={id} /> : null}
             {tab === 'search' ? <Search repoId={id} /> : null}
+            {tab === 'ask' ? <AskRepository repoId={id} /> : null}
             {tab === 'pulls' ? <Pulls repo={r} /> : null}
           </Card>
         </div>

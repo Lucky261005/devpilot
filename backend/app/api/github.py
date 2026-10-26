@@ -89,11 +89,28 @@ def oauth_callback(
     return resp
 
 
-@router.delete("/api/github/account", status_code=204)
-def disconnect(db: Session = Depends(get_db), user: User = Depends(current_user)):
-    db.query(GitHubAccount).filter_by(user_id=user.id).delete()
-    db.add(AuditEvent(user_id=user.id, action="github.disconnect"))
-    db.commit()
+REVOKE_HELP = "https://github.com/settings/apps/authorizations"
+
+
+@router.delete("/api/github/account")
+def disconnect(
+    db: Session = Depends(get_db), user: User = Depends(current_user), settings: Settings = Depends(get_settings)
+):
+    acct = db.query(GitHubAccount).filter_by(user_id=user.id).one_or_none()
+    if acct is None:
+        return {
+            "local_credentials_deleted": False,
+            "github_grant_revoked": False,
+            "detail": "No GitHub account is connected.",
+        }
+    revoked = github_tokens.disconnect(db, acct, settings)
+    detail = (
+        "Disconnected. DevPilot deleted its GitHub tokens and GitHub confirmed the authorization was revoked."
+        if revoked
+        else "Disconnected. DevPilot deleted its GitHub tokens, but GitHub did not confirm revoking the "
+        f"authorization. Revoke DevPilot at {REVOKE_HELP} to be sure."
+    )
+    return {"local_credentials_deleted": True, "github_grant_revoked": revoked, "detail": detail}
 
 
 @router.get("/api/github/repos")

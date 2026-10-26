@@ -15,6 +15,10 @@ class Credentials(BaseModel):
     password: str = Field(min_length=10, max_length=256)
 
 
+class RegisterIn(Credentials):
+    invite_code: str | None = Field(default=None, max_length=200)
+
+
 class UserOut(ORM):
     id: int
     email: str
@@ -77,6 +81,22 @@ class ReviewOut(ORM):
     severity_counts: dict[str, int] = {}
     pr_number: int | None = None
     pr_title: str | None = None
+
+
+class RecentReviewOut(BaseModel):
+    """Dashboard row: status and summary only, no error text or stats."""
+
+    id: int
+    repository_id: int
+    repository_name: str
+    kind: str
+    use_ai: bool
+    status: str
+    stage: str | None
+    created_at: datetime
+    finished_at: datetime | None
+    severity_counts: dict[str, int] = {}
+    pr_number: int | None = None
 
 
 class FindingOut(ORM):

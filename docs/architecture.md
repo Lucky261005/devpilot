@@ -37,7 +37,7 @@ runs either as a thread inside the API process or as its own process. There is n
 POST /api/repositories/archive (multipart: name, file)
   guard middleware: request id, Content-Length cap, CSRF header
   current_user (session cookie → sessions.token_hash)
-  rate limit: 20 imports / hour / user
+  rate limit: 20 imports / rolling hour / user (database: import_events)
   stream upload to temp file, abort past DEVPILOT_MAX_UPLOAD_BYTES       → 413
   insert repositories row (index_status=indexing), audit event
   safe_extract_zip(strip_top=True) into data/snapshots/<repo>/current
@@ -134,5 +134,4 @@ deletes cascade, `review_jobs` doubles as the job queue, and JSON columns are us
 | Import/index in the request | Background indexing job | Simpler; MVP repos are small. | Large repos or slow GitHub downloads. |
 | Lexical search | Embeddings / pg_trgm / FTS | No extra infra; exact identifiers matter most in code. | Measured need for fuzzy or semantic recall. |
 | Python `ast` for structure | Tree-sitter | No native build; Python is the only analyzed language. | Adding analyzers for other languages. |
-| In-memory rate limiter | Redis/DB counters | Zero dependencies. | More than one API process. |
 | One LLM call per review | Per-file calls / agent loop | Predictable cost and latency; easy to validate. | Repos where one context window is too small. |

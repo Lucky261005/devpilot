@@ -42,10 +42,25 @@ export interface AiStats {
   latency_ms?: number
   files_in_context?: number
   files_omitted?: string[]
+  files_partial?: string[]
   prompt_version?: string
   context_mode?: string
   related_code?: string[]
   unconfirmed?: string[]
+}
+
+export interface RecentReview {
+  id: number
+  repository_id: number
+  repository_name: string
+  kind: Review['kind']
+  use_ai: boolean
+  status: Review['status']
+  stage: string | null
+  created_at: string
+  finished_at: string | null
+  severity_counts: Review['severity_counts']
+  pr_number: number | null
 }
 
 export interface Review {
@@ -76,6 +91,8 @@ export interface Review {
     findings?: { static: number; ai: number }
     base_sha?: string
     head_sha?: string
+    files_without_patch?: string[]
+    pr_files_truncated?: boolean
   }
 }
 
@@ -134,7 +151,25 @@ export interface SearchResponse {
   results: { path: string; line: number; text: string; language: string }[]
 }
 
+export interface CodeRange {
+  path: string
+  start_line: number
+  end_line: number
+}
+
+export interface AskResponse {
+  status: 'answered' | 'no_matches' | 'ai_disabled' | 'no_provider' | 'provider_error'
+  answer: string | null
+  confidence: 'high' | 'medium' | 'low' | null
+  citations: (CodeRange & { note: string })[]
+  unknowns: string[]
+  sources: CodeRange[]
+  message: string | null
+  model: string | null
+}
+
 export interface ServerSettings {
+  registration: 'open' | 'invite' | 'closed'
   llm: { provider: string | null; model: string | null; configured: boolean; local: boolean }
   github: { configured: boolean; scopes: string }
   limits: {

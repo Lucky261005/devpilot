@@ -1,5 +1,7 @@
+import hashlib
 import shutil
 import tempfile
+from datetime import timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Query, UploadFile, status
@@ -8,10 +10,9 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import current_user, owned_repo
 from app.core.config import Settings, get_settings
-from app.core.db import get_db
-from app.core.ratelimit import limiter
+from app.core.db import get_db, serialize
 from app.integrations.github import GitHubClient, GitHubError, validate_full_name
-from app.models import AuditEvent, GitHubAccount, Repository, User
+from app.models import AuditEvent, GitHubAccount, ImportEvent, Repository, User, utcnow
 from app.schemas import FileContent, GitHubRepoIn, LocalRepoIn, RepositoryOut, RepositoryPatch
 from app.services import github_tokens, ingestion
 from app.services.indexing import index_snapshot, list_paths, search
@@ -19,9 +20,24 @@ from app.services.indexing import index_snapshot, list_paths, search
 router = APIRouter(prefix="/api/repositories", tags=["repositories"])
 
 
-def _check_quota(user: User, settings: Settings) -> None:
-    if not limiter.allow(("ingest", user.id), limit=20, window_s=3600):
+IMPORT_LIMIT = 20  # admitted imports per user per sliding IMPORT_WINDOW
+IMPORT_WINDOW = timedelta(hours=1)
+
+
+def _check_quota(db: Session, user: User) -> None:
+    """Admit one import under the user's quota and record it, or raise 429. Same lock, count,
+    insert rule as the per-IP sign-in limit (api/auth.py `_throttle`): imports for one user are
+    serialized across API processes, so at most IMPORT_LIMIT are admitted per window. An admitted
+    import counts even if it then fails; a refused one leaves no record."""
+    serialize(db, hashlib.sha256(f"import:{user.id}".encode()).hexdigest())
+    now = utcnow()
+    mine = ImportEvent.user_id == user.id
+    db.query(ImportEvent).filter(mine, ImportEvent.expires_at <= now).delete()
+    if db.query(func.count(ImportEvent.id)).filter(mine, ImportEvent.expires_at > now).scalar() >= IMPORT_LIMIT:
+        db.commit()  # keeps the expired-row cleanup, releases the lock
         raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Import limit reached. Try again later.")
+    db.add(ImportEvent(user_id=user.id, expires_at=now + IMPORT_WINDOW))
+    db.commit()
 
 
 def _new_repo(db: Session, user: User, name: str, source_type: str, ref: str) -> Repository:
@@ -74,7 +90,7 @@ def import_archive(
     user: User = Depends(current_user),
     settings: Settings = Depends(get_settings),
 ):
-    _check_quota(user, settings)
+    _check_quota(db, user)
     with tempfile.TemporaryDirectory() as tmp:
         zpath = Path(tmp) / "upload.zip"
         size = 0
@@ -99,7 +115,7 @@ def import_local(
     user: User = Depends(current_user),
     settings: Settings = Depends(get_settings),
 ):
-    _check_quota(user, settings)
+    _check_quota(db, user)
     try:
         path = ingestion.validate_local_path(body.path, settings)
     except ingestion.IngestionError as e:
@@ -139,7 +155,7 @@ def import_github(
     user: User = Depends(current_user),
     settings: Settings = Depends(get_settings),
 ):
-    _check_quota(user, settings)
+    _check_quota(db, user)
     try:
         validate_full_name(body.full_name)
         gh = github_client_for(db, user, settings)

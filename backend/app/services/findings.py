@@ -92,7 +92,15 @@ def _realign(lines: list[str], start: int, end: int, evidence: str) -> tuple[int
 def validate_test_suggestions(
     items: list[AITestSuggestion], shown: dict[str, list[tuple[int, int]]]
 ) -> list[AITestSuggestion]:
-    return [t for t in items if t.path.removeprefix("./") in shown]
+    return [t for t in items if t.path.removeprefix("./") in shown and not has_placeholder(t.test_code)]
+
+
+# `x = ...`, `== ...`, `f(...)`, a bare `...` line or a TODO: a template, not a runnable test.
+PLACEHOLDER = re.compile(r"\bTODO\b|(?:=|\(|,)\s*\.\.\.|^\s*\.\.\.\s*$", re.M)
+
+
+def has_placeholder(code: str) -> bool:
+    return bool(PLACEHOLDER.search(code))
 
 
 def _overlaps(a: NormalizedFinding, b: NormalizedFinding) -> bool:

@@ -49,3 +49,21 @@ class AIReview(BaseModel):
         description="Suspicions the code shown does not prove, one sentence each. Not findings.",
     )
     test_suggestions: list[AITestSuggestion] = Field(max_length=5)
+
+
+class AnswerCitation(BaseModel):
+    path: str = Field(description="File path exactly as shown in the excerpts.")
+    start_line: int = Field(ge=1)
+    end_line: int = Field(ge=1)
+    note: str = Field(max_length=300, description="What these lines show, in one sentence.")
+
+
+class RepoAnswer(BaseModel):
+    """Answer to a question about one repository (services/qa.py)."""
+
+    answer: str = Field(max_length=6000, description="Plain-text answer based only on the excerpts.")
+    citations: list[AnswerCitation] = Field(max_length=12)
+    confidence: Literal["high", "medium", "low"]
+    unknowns: list[str] = Field(
+        max_length=6, description="What the excerpts do not show and would be needed to answer fully."
+    )

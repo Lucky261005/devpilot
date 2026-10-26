@@ -1,5 +1,28 @@
 # Verification report
 
+## Latest local run: 2026-10-26
+
+Windows 11 (10.0.26200), Python 3.12.2 (uv 0.13.1), Node 22.14.0, Playwright 1.64.1. Run on the
+uncommitted working tree (HEAD `4028ca0` plus local changes). These are local results; GitHub
+Actions has not run on these changes. Its latest run passed on `4028ca0` (2026-10-23).
+
+| Step | Command | Outcome |
+|---|---|---|
+| Backend tests | `cd backend && uv run pytest -q` | **310 passed**, 4 deselected (`live_llm`, `live_github`), 0 failed |
+| Lint / format | `uv run ruff check .`, `uv run ruff format --check .` | clean |
+| Types | `uv run mypy app` | no issues |
+| Security lint | `uv run bandit -q -r app -s B404,B603,B607` | no issues |
+| Frontend tests | `cd frontend && npm test` | **41 passed** (12 files) |
+| Frontend lint | `npx eslint .` | 0 errors, 5 pre-existing fast-refresh warnings |
+| Frontend format / types | `npx prettier --check src tests`, `npm run typecheck` | clean |
+| Build | `npm run build` | succeeds |
+| E2E | `npx playwright test` | **2 passed**, after a test-only locator fix (`getByText('completed', { exact: true })`); the first attempt failed because the review stepper's screen-reader text also contains "completed" |
+
+Not run on 2026-10-26: dependency audits (pip-audit, `npm audit`), the evaluation harness, and
+Docker Compose.
+
+## Earlier run: 2026-10-17
+
 Run on 2026-10-17, Windows 11 (10.0.26200), Python 3.12.2 (uv 0.13.1), Node 22.14.0, Git 2.49.
 Docker CLI 28.0.1 present but the **daemon was not running**; no PostgreSQL; no `ANTHROPIC_API_KEY`;
 no GitHub OAuth app.

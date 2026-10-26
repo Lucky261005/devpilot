@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ErrorBox, Spinner } from './components/ui'
 import { ApiError, api } from './lib/api'
+import { useTitle } from './lib/useTitle'
 import { LoginPage } from './pages/LoginPage'
 
 // Signed-in pages load on demand, so the front screen ships only what it needs.
@@ -27,6 +28,11 @@ export const queryClient = new QueryClient({
   },
 })
 
+function NotFound() {
+  useTitle('Page not found')
+  return <p className="text-muted">Page not found.</p>
+}
+
 function Authed() {
   const me = useQuery({ queryKey: ['me'], queryFn: api.me })
   if (me.isLoading) return <Spinner label="Checking session" />
@@ -46,7 +52,7 @@ function Authed() {
           <Route path="/repositories/:id" element={<RepositoryPage />} />
           <Route path="/reviews/:id" element={<ReviewPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route path="*" element={<p className="text-muted">Page not found.</p>} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Layout>

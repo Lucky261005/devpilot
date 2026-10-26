@@ -51,10 +51,15 @@ function Icon({ d }: { d: string }) {
   )
 }
 
-function Logo() {
+// compact: mark only below 640px, where the wordmark pushed the top bar past a 375px viewport.
+function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" aria-label="DevPilot, repositories">
-      <BrandLogo size={30} className="text-[17px]" />
+      <BrandLogo
+        size={30}
+        className="text-[17px]"
+        wordmarkClassName={compact ? 'hidden sm:inline' : ''}
+      />
     </Link>
   )
 }
@@ -140,7 +145,7 @@ export function Layout({ user, children }: { user: User; children: ReactNode }) 
       {/* Top bar, below 1024px */}
       <header className="app-bar sticky top-0 z-10 border-b border-line lg:hidden">
         <div className="flex h-14 items-center gap-3 px-4 sm:gap-6 sm:px-6">
-          <Logo />
+          <Logo compact />
           <nav className="flex gap-1" aria-label="Main">
             {NAV.map((n, i) => (
               <Link

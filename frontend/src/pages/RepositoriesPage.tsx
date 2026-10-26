@@ -10,13 +10,16 @@ import {
   PageHeader,
   Pill,
   Stat,
+  StatusBadge,
   formatBytes,
   inputClass,
   timeAgo,
 } from '../components/ui'
 import { GitHubImport } from '../components/GitHubImport'
 import { api } from '../lib/api'
+import { useTitle } from '../lib/useTitle'
 import { SOURCE_LABEL, type Repository } from '../lib/types'
+import { SeverityCounts } from './RepositoryPage'
 
 function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
   const settings = useQuery({ queryKey: ['settings'], queryFn: api.settings })
@@ -127,7 +130,7 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
                 />
                 {file ? (
                   <span>
-                    <span className="font-mono text-fg">{file.name}</span>
+                    <span className="font-mono break-all text-fg">{file.name}</span>
                     <span className="text-muted"> · {formatBytes(file.size)}</span>
                     {!/\.zip$/i.test(file.name) ? (
                       <span className="mt-1 block text-danger">Not a .zip file</span>
@@ -165,7 +168,77 @@ function ImportForm({ onDone }: { onDone: (r: Repository) => void }) {
   )
 }
 
+function RecentReviews() {
+  const reviews = useQuery({
+    queryKey: ['recent-reviews'],
+    queryFn: () => api.recentReviews(5),
+    refetchInterval: (q) =>
+      q.state.data?.some((r) => r.status === 'queued' || r.status === 'running') ? 2000 : false,
+  })
+  return (
+    <Card
+      className="rise-in mb-8"
+      title="Recent reviews"
+      description="Your latest reviews across all repositories."
+    >
+      {reviews.isLoading ? (
+        <ul role="status" aria-label="Loading recent reviews" className="divide-y divide-line">
+          {[0, 1].map((i) => (
+            <li key={i} className="flex items-center gap-4 px-5 py-3.5">
+              <div className="skeleton h-3.5 flex-1" />
+              <div className="skeleton h-5 w-20" />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {reviews.error ? (
+        <div className="p-5">
+          <ErrorBox error={reviews.error} title="Recent reviews unavailable" />
+        </div>
+      ) : null}
+      {reviews.data && !reviews.data.length ? (
+        <p className="px-5 py-4 text-sm text-muted">
+          No reviews yet. Open a repository below and choose <b>Start review</b>.
+        </p>
+      ) : null}
+      {reviews.data?.length ? (
+        <ul className="divide-y divide-line">
+          {reviews.data.map((r) => (
+            <li key={r.id}>
+              <Link
+                to={`/reviews/${r.id}`}
+                className="group flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 hover:bg-subtle/70"
+              >
+                <span className="min-w-0 flex-1 basis-48">
+                  <span className="block truncate text-sm font-medium group-hover:text-accent">
+                    {r.repository_name}
+                  </span>
+                  <span className="block text-xs text-faint">
+                    #{r.id} ·{' '}
+                    {r.kind === 'pull_request'
+                      ? `PR #${r.pr_number}`
+                      : r.kind === 'diff'
+                        ? 'Commit range'
+                        : 'Whole repository'}
+                    {r.use_ai ? ' · +LLM' : ''}
+                  </span>
+                </span>
+                <StatusBadge status={r.status} stage={r.stage} />
+                {r.status === 'completed' ? <SeverityCounts counts={r.severity_counts} /> : null}
+                <span className="text-xs text-faint sm:w-24 sm:text-right">
+                  {timeAgo(r.finished_at ?? r.created_at)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </Card>
+  )
+}
+
 export function RepositoriesPage() {
+  useTitle('Repositories')
   const repos = useQuery({ queryKey: ['repos'], queryFn: api.repositories })
   const [showImport, setShowImport] = useState(false)
   const [query, setQuery] = useState('')
@@ -212,6 +285,8 @@ export function RepositoriesPage() {
         </div>
       ) : null}
 
+      {list.length > 0 ? <RecentReviews /> : null}
+
       {showImport ? (
         <Card
           className="rise-in mb-8"
@@ -248,7 +323,10 @@ export function RepositoriesPage() {
         <Empty title="No repositories yet">
           Upload a ZIP archive, point at a local Git repository, or connect GitHub. A sample
           repository with seeded defects lives in{' '}
-          <code className="font-mono text-fg">fixtures/sample_repositories/inventory_service</code>.
+          <code className="font-mono break-all text-fg">
+            fixtures/sample_repositories/inventory_service
+          </code>
+          .
         </Empty>
       ) : null}
 

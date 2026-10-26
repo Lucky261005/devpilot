@@ -13,6 +13,7 @@ import {
   formatBytes,
 } from '../components/ui'
 import { api } from '../lib/api'
+import { useTitle } from '../lib/useTitle'
 
 /** One setting: what it is on the left, its state or control on the right. */
 function Row({
@@ -38,6 +39,7 @@ function Row({
 }
 
 export function SettingsPage() {
+  useTitle('Settings')
   const settings = useQuery({ queryKey: ['settings'], queryFn: api.settings })
   const gh = useQuery({ queryKey: ['github-status'], queryFn: api.githubStatus })
   const qc = useQueryClient()
@@ -127,6 +129,13 @@ export function SettingsPage() {
           {disconnect.error ? (
             <div className="px-5 pb-4 lg:px-6">
               <ErrorBox error={disconnect.error} />
+            </div>
+          ) : null}
+          {disconnect.data ? (
+            <div role="status" className="px-5 pb-4 lg:px-6">
+              <Notice tone={disconnect.data.github_grant_revoked ? 'ok' : 'warn'}>
+                {disconnect.data.detail}
+              </Notice>
             </div>
           ) : null}
         </Card>

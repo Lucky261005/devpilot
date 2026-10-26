@@ -8,7 +8,7 @@ Functions marked ⚠ are security-sensitive; read them before changing anything 
 ```
 backend/app/
   main.py               app, middleware, exception handlers, /health, /settings
-  core/                 config, db engine/session, security (hashing, crypto), logging, rate limiter
+  core/                 config, db engine/session, security (hashing, crypto), logging
   models.py             SQLAlchemy models (all tables)
   schemas.py            Pydantic request/response models
   api/                  routers: auth, repositories, reviews, github; deps.py (auth/ownership)
@@ -138,9 +138,11 @@ Covered in depth in [ai-review-pipeline.md](ai-review-pipeline.md). Key entry po
 
 `suggest_for_changes(root, changed, test_files)`: for each changed, non-test Python file, find
 public functions overlapping added lines (or all, for whole-repo reviews) whose name does not
-appear anywhere in the test files' text, and build a pytest skeleton from the signature: one
-"returns expected value" test with `...` placeholders, plus one `pytest.raises(X)` test per
-distinct exception class raised in the body. Limit 10. The name-in-text check is a heuristic: a
+appear anywhere in the test files' text. If the docstring has `>>> name(...)` examples with a
+literal expected output, emit a complete test asserting them; otherwise emit a test gap with empty
+`test_code` and a rationale naming the signature and each exception class raised in the body (no
+placeholder code). Limit 10. AI test suggestions containing `TODO` or `...` placeholders are
+dropped in `validate_test_suggestions`. The name-in-text check is a heuristic: a
 function mentioned in a comment counts as tested.
 
 ## Review pipeline — `app/services/review.py::run_review`

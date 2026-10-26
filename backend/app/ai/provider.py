@@ -5,10 +5,10 @@ from __future__ import annotations
 import logging
 import time
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol
 
 import httpx
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from app.ai.schema import AIReview
 from app.core.config import Settings
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class LLMResult:
-    review: AIReview | None
+    review: Any  # an instance of the requested schema (AIReview unless the caller asked otherwise)
     model: str
     latency_ms: int
     input_tokens: int | None = None
@@ -31,7 +31,7 @@ class LLMProvider(Protocol):
     name: str
     model: str
 
-    def review(self, system: str, user: str) -> LLMResult: ...
+    def review(self, system: str, user: str, schema: type[BaseModel] = AIReview) -> LLMResult: ...
 
 
 class ProviderUnavailable(RuntimeError):
@@ -54,7 +54,7 @@ class AnthropicProvider:
             api_key=settings.anthropic_api_key, timeout=settings.llm_timeout_s, max_retries=2
         )
 
-    def review(self, system: str, user: str) -> LLMResult:
+    def review(self, system: str, user: str, schema: type[BaseModel] = AIReview) -> LLMResult:
         a = self._anthropic
         started = time.monotonic()
         attempts = 0
@@ -69,7 +69,7 @@ class AnthropicProvider:
                     system=system,
                     output_config={"effort": self.effort},  # type: ignore[arg-type]
                     messages=[{"role": "user", "content": user}],
-                    output_format=AIReview,
+                    output_format=schema,
                 )
             except (a.AuthenticationError, a.PermissionDeniedError) as e:
                 last_error = f"provider rejected credentials ({type(e).__name__})"
@@ -133,7 +133,7 @@ class OllamaProvider:
         self.num_ctx = settings.ollama_num_ctx
         self.http = httpx.Client(base_url=self.url, timeout=settings.llm_timeout_s, transport=transport)
 
-    def review(self, system: str, user: str) -> LLMResult:
+    def review(self, system: str, user: str, schema: type[BaseModel] = AIReview) -> LLMResult:
         started = time.monotonic()
         attempts = 0
         in_tok = out_tok = 0
@@ -150,7 +150,7 @@ class OllamaProvider:
         body = {
             "model": self.model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "format": AIReview.model_json_schema(),
+            "format": schema.model_json_schema(),
             "stream": False,
             "options": {"temperature": 0, "num_ctx": self.num_ctx},
         }
@@ -176,7 +176,7 @@ class OllamaProvider:
                 last_error = "output truncated at the model's length limit"
                 continue
             try:
-                review = AIReview.model_validate_json((data.get("message") or {}).get("content") or "")
+                review = schema.model_validate_json((data.get("message") or {}).get("content") or "")
             except ValidationError as e:
                 last_error = f"output failed schema validation: {e.error_count()} errors"
                 continue
@@ -211,15 +211,15 @@ class StaticReplayProvider:
         self.model = model
         self.calls: list[tuple[str, str]] = []
 
-    def review(self, system: str, user: str) -> LLMResult:
+    def review(self, system: str, user: str, schema: type[BaseModel] = AIReview) -> LLMResult:
         self.calls.append((system, user))
         if isinstance(self.payload, Exception):
             return LLMResult(None, self.model, 0, error=str(self.payload))
         try:
             data = (
-                AIReview.model_validate_json(self.payload)
+                schema.model_validate_json(self.payload)
                 if isinstance(self.payload, str)
-                else AIReview.model_validate(self.payload)
+                else schema.model_validate(self.payload)
             )
         except ValidationError as e:
             return LLMResult(None, self.model, 0, error=f"output failed schema validation: {e.error_count()} errors")

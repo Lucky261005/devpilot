@@ -1,9 +1,11 @@
 import type {
+  AskResponse,
   ChangedFile,
   FileContent,
   Finding,
   PullDetail,
   PullSummary,
+  RecentReview,
   Repository,
   Review,
   SearchResponse,
@@ -60,8 +62,13 @@ export const api = {
   me: () => request<User>('GET', '/api/auth/me'),
   login: (email: string, password: string) =>
     request<User>('POST', '/api/auth/login', { email, password }),
-  register: (email: string, password: string) =>
-    request<User>('POST', '/api/auth/register', { email, password }),
+  // Answers the same for new and already-registered emails and starts no session: sign in next.
+  register: (email: string, password: string, invite_code?: string) =>
+    request<{ detail: string }>('POST', '/api/auth/register', {
+      email,
+      password,
+      ...(invite_code ? { invite_code } : {}),
+    }),
   logout: () => request<void>('POST', '/api/auth/logout'),
   settings: () => request<ServerSettings>('GET', '/api/settings'),
 
@@ -82,9 +89,13 @@ export const api = {
   deleteRepository: (id: number) => request<void>('DELETE', `/api/repositories/${id}`),
   search: (id: number, query: string, mode: 'text' | 'identifier') =>
     request<SearchResponse>('GET', `/api/repositories/${id}/search${q({ q: query, mode })}`),
+  ask: (id: number, question: string) =>
+    request<AskResponse>('POST', `/api/repositories/${id}/ask`, { question }),
   repoFile: (id: number, path: string) =>
     request<FileContent>('GET', `/api/repositories/${id}/file${q({ path })}`),
 
+  recentReviews: (limit = 5) =>
+    request<RecentReview[]>('GET', `/api/reviews/recent${q({ limit: String(limit) })}`),
   reviews: (repoId: number) => request<Review[]>('GET', `/api/repositories/${repoId}/reviews`),
   createReview: (
     repoId: number,
@@ -124,7 +135,11 @@ export const api = {
       'GET',
       `/api/github/repos/${full_name.split('/').map(encodeURIComponent).join('/')}/branches`,
     ),
-  disconnectGithub: () => request<void>('DELETE', '/api/github/account'),
+  disconnectGithub: () =>
+    request<{ local_credentials_deleted: boolean; github_grant_revoked: boolean; detail: string }>(
+      'DELETE',
+      '/api/github/account',
+    ),
   pulls: (repoId: number) => request<PullSummary[]>('GET', `/api/repositories/${repoId}/pulls`),
   pull: (repoId: number, n: number) =>
     request<PullDetail>('GET', `/api/repositories/${repoId}/pulls/${n}`),

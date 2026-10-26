@@ -23,20 +23,34 @@ pull request, with findings they can verify in a few seconds.
 Status of every item, with what is and isn't verified, is in [docs/feature-status.md](docs/feature-status.md).
 
 - Email/password accounts, server-side sessions in httpOnly cookies, per-user data isolation.
+  Registration can be `open`, `invite`-only or `closed`; the server operator can always create
+  accounts with `python -m app.cli create-user`.
 - Import a repository from a **ZIP upload**, a **local Git path** (inside admin-approved
-  directories), or **GitHub** (OAuth, default branch).
+  directories), or **GitHub** (GitHub App sign-in; only repositories you install the App on, any branch,
+  imported at that branch's exact commit).
 - Safe ingestion: traversal/symlink/zip-bomb checks, size limits, binary and secret-file exclusion.
 - Code search by text or definition name, with file/line results and a source viewer.
 - Reviews of a whole snapshot, a local `base..head` range, or a GitHub pull request; run by a
   background worker with queued → running → completed/failed states.
 - Ruff + Bandit findings normalized into one format with rule IDs, versions, evidence and docs links.
+  Ruff rules that indicate a likely runtime defect are labeled `bug`; the rest (for example B905,
+  `zip()` without `strict=`) are labeled `maintainability`, and no confidence is claimed for them.
 - Optional LLM review with structured output, through either Anthropic Claude (paid API) or a
   local model served by Ollama (free, code stays on the machine), with citation validation,
   deduplication against analyzer findings, token/latency accounting and a per-repository opt-in.
-- Test suggestions: deterministic pytest skeletons for changed functions no test references, plus
-  model-written tests when the LLM review runs. Shown for copying, never executed.
+  Files too large for the context budget are sent as line-numbered excerpts, and the review page
+  shows how many files the model saw whole, in part, or not at all.
+- Test suggestions for public functions no test references. A complete test is generated only
+  from doctest examples in the docstring; otherwise the suggestion is a **test gap** that names
+  the function, its signature and the exceptions it raises. Model-written tests with placeholders
+  are dropped. Nothing is executed.
+- Repository Q&A (**Ask** tab): keyword retrieval over the indexed code, an answer from the LLM
+  that cites file and line ranges, and citations checked against the excerpts it was given.
+- Home page with recent reviews across your repositories; review progress by worker stage.
 - Feedback on each finding (useful / incorrect / duplicate / not actionable), stored with the
   analyzer or model version.
+- Database-backed limits: sign-in throttling per account and per IP, imports and reviews per user
+  per hour, and an installation-wide review cap.
 - An evaluation harness comparing analyzer-only, LLM-only and combined configurations.
 
 ## Architecture
@@ -76,45 +90,78 @@ ADRs: [docs/decisions/](docs/decisions/).
 
 ## Getting started (local, no Docker)
 
-Prerequisites: Python 3.12, [uv](https://docs.astral.sh/uv/), Node 22, Git.
+Prerequisites: Python 3.12+, [uv](https://docs.astral.sh/uv/), Node 22, Git. Commands below are for
+PowerShell on Windows; in Git Bash or on macOS/Linux use `cp` instead of `Copy-Item`.
 
-```bash
+**1. Backend** (terminal 1). The API runs the review worker in the same process by default.
+
+```powershell
 cd backend
-cp ../.env.example .env          # then edit; see "Configuration"
+Copy-Item ..\.env.example .env   # settings are read from backend\.env; see "Configuration"
 uv sync
-uv run alembic upgrade head      # creates the SQLite database
+uv run alembic upgrade head      # creates backend\devpilot.db (SQLite)
 uv run uvicorn app.main:app --port 8000
 ```
 
-In a second terminal:
+**2. Frontend** (terminal 2):
 
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev                      # http://localhost:5173, proxies /api to :8000
 ```
 
-Register an account in the UI. To try it without your own code, build the sample repository
-(synthetic, with seeded defects) and import it through **Local Git path**:
+**3. First account.** Open http://localhost:5173 and choose **Create one**; registration is open in
+development. Or, from `backend`: `uv run python -m app.cli create-user --email you@example.com`.
 
-```bash
-python scripts/make_demo_repo.py ../devpilot-demo-repo
+**4. A repository to review.** Upload a ZIP of any Python project, or build the synthetic sample
+(with seeded defects, listed in `fixtures/sample_repositories/inventory_service/SEEDED_DEFECTS.md`)
+as a Git repository and import it through **Local Git path**. From the repository root:
+
+```powershell
+python scripts/make_demo_repo.py ..\devpilot-demo-repo
 ```
 
-For that, `DEVPILOT_ALLOWED_LOCAL_ROOTS` must include the parent directory. A step-by-step demo is
-in [docs/demo.md](docs/demo.md).
+Local import reads only below `DEVPILOT_ALLOWED_LOCAL_ROOTS`, so set it in `backend\.env` to the
+parent folder of `devpilot-demo-repo` and restart the API. A step-by-step demo is in
+[docs/demo.md](docs/demo.md).
+
+**Stopping and restarting.** Press Ctrl+C in both terminals; data stays in `backend\devpilot.db` and
+`backend\data`. Start again with the same `uvicorn` and `npm run dev` commands. After pulling new
+code, back up the database (copy `devpilot.db` while the API is stopped) and run
+`uv run alembic upgrade head` before starting the API.
+
+### LLM review (optional)
+
+Without a configured provider, reviews run the analyzers only and the Ask tab explains that no
+model is configured; everything else works. `.env.example` selects `anthropic`, which stays
+disabled until `ANTHROPIC_API_KEY` is set. For a free local model:
+
+1. Install [Ollama](https://ollama.com) and run `ollama pull qwen2.5-coder:3b` (about 1.9 GB).
+2. In `backend\.env` set `DEVPILOT_LLM_PROVIDER=ollama`, then restart the API.
+3. On a repository page, tick **Allow LLM review for this repository**; code is sent to the model
+   only after that.
+
+A 3B local model is fast enough to try but finds few defects; see "Known limitations".
 
 ## Getting started (Docker Compose)
 
 ```bash
-cp .env.example .env    # set DEVPILOT_SECRET_KEY (required in this mode)
+cp .env.example .env    # in the repository root; set DEVPILOT_SECRET_KEY (required in this mode)
 docker compose up --build
-# UI on http://localhost:8080
+# UI on http://localhost:8080 (this machine only)
+docker compose exec backend python -m app.cli create-user --email you@example.com   # first account
 ```
 
-Compose runs PostgreSQL, the API, a separate worker process and nginx serving the built UI.
-The compose file validates with `docker compose config`, but the stack has not yet been run end to
-end (see [docs/feature-status.md](docs/feature-status.md)).
+Compose runs PostgreSQL, the API, a separate worker process and nginx serving the built UI. It
+forces production settings (`DEVPILOT_ENV=production`, `DEVPILOT_COOKIE_SECURE=true`), so public
+registration defaults to `invite` and the first account is created with the command above. The UI
+is published on `127.0.0.1:8080` only; to use it from other machines, put an HTTPS reverse proxy on
+the host in front of it, as described under Deployment assumptions in
+[docs/security.md](docs/security.md).
+The stack has been started on a disposable setup for the backup and restore drill
+([docs/backup-restore.md](docs/backup-restore.md)); the HTTPS-proxy path and the remaining
+hardening checks are configuration-only (see [docs/feature-status.md](docs/feature-status.md)).
 
 ## Configuration
 
@@ -130,8 +177,14 @@ that matter most:
 | `ANTHROPIC_API_KEY` | empty | Enables Claude review when the provider is `anthropic`. |
 | `DEVPILOT_OLLAMA_URL` / `_MODEL` / `_NUM_CTX` | `http://127.0.0.1:11434` / `qwen2.5-coder:3b` / `16384` | Local model settings when the provider is `ollama`. |
 | `DEVPILOT_LLM_MODEL` | `claude-opus-5-5` | Model ID. |
-| `DEVPILOT_GITHUB_CLIENT_ID` / `_SECRET` | empty | GitHub OAuth app; callback is the UI address + `/api/github/oauth/callback` (dev: `http://localhost:5173/...`). |
-| `DEVPILOT_GITHUB_OAUTH_SCOPES` | empty | Empty = public repos, read-only. `repo` for private repos. |
+| `DEVPILOT_GITHUB_CLIENT_ID` / `_SECRET` | empty | GitHub App user-authorization credentials; callback is the UI address + `/api/github/oauth/callback` (dev: `http://localhost:5173/...`). See [docs/github-app.md](docs/github-app.md). |
+| `DEVPILOT_GITHUB_APP_SLUG` | empty | The App's URL name, for the "choose repositories" link. |
+| `DEVPILOT_REGISTRATION` | `open` in development, `invite` elsewhere | `open`, `invite` or `closed`. Existing accounts can always sign in. |
+| `DEVPILOT_INVITE_CODE` | empty | Required for `invite` mode; empty means nobody can register over HTTP. |
+| `DEVPILOT_COOKIE_SECURE` | `false` | Must be `true` outside development, or the API and worker refuse to start. Compose sets it. |
+| `DEVPILOT_HSTS_SECONDS` | `0` (off) | `Strict-Transport-Security` max-age, sent outside development only. Set only when every request arrives over HTTPS. |
+| `DEVPILOT_PUBLIC_ORIGIN` | empty (`http://localhost:8080`) | Compose only: the HTTPS address users open when a reverse proxy serves DevPilot. |
+| `DEVPILOT_REVIEWS_PER_HOUR` / `_GLOBAL_PER_HOUR` | `30` / `60` | New reviews per hour: per user, and for the whole installation. |
 | `DEVPILOT_RUN_WORKER_IN_PROCESS` | `true` | Run the review worker as a thread in the API process. |
 
 ## Commands
@@ -145,33 +198,43 @@ that matter most:
 | End-to-end tests | `cd frontend && npx playwright test` (starts its own backend on :8001 and UI on :5174) |
 | Evaluation | `cd backend && uv run python ../evaluation/scripts/run_eval.py --configs static,ai,combined` |
 | Standalone worker | `cd backend && uv run python -m app.workers.queue` |
-| Retention cleanup | `cd backend && uv run python -m app.cli cleanup` |
+| Retention cleanup (old review snapshots, expired sessions and sign-in records) | `cd backend && uv run python -m app.cli cleanup` |
+| Create an account (any registration mode) | `cd backend && uv run python -m app.cli create-user --email you@example.com` |
 | New migration | `cd backend && uv run alembic revision --autogenerate -m "..."` |
 
 ## Test and evaluation results
 
-Measured on 2026-10-17, Windows 11, Python 3.12.2 / Node 22.14:
-
-- Backend: **77 passed** (2 live-model tests, Anthropic and Ollama, deselected by default). Ruff, ruff format, mypy, Bandit: clean.
-- Frontend: **7 passed** (Vitest). ESLint: 0 errors, 5 fast-refresh warnings. Production build succeeds.
-- End-to-end (Playwright, Chromium): **2 passed**.
-- Dependency audit: pip-audit and `npm audit` report no known vulnerabilities.
-- Evaluation, 17 synthetic cases, analyzer-only configuration: precision 1.0, recall 0.692
-  (9 of 13 seeded defects, after adding Ruff SIM115 and DevPilot rule DP001; 7 of 13 before), 0 of 4 clean cases with false positives. In label-blind runs (after fixing a
-  benchmark flaw that leaked case names into prompts), the local model `qwen2.5-coder:3b` found
-  **0/13** on its own and added nothing over the analyzers when combined (7/13), in 3 of 3 runs per
-  configuration. Claude was not run (zero budget). Full report and caveats:
+- **Tests.** CI (`.github/workflows/ci.yml`) runs backend lint, types, Bandit, pytest and a
+  dependency audit; frontend ESLint, Prettier, type check, Vitest, build and `npm audit`;
+  Playwright end-to-end tests; and the static-only evaluation. Live-model and live-GitHub tests
+  are marked and skipped by default (`-m live_llm`, `-m live_github` to run them).
+  Current counts and dates are recorded in [docs/verification-report.md](docs/verification-report.md).
+- **Evaluation** (17 synthetic cases, 13 seeded defects, 4 clean cases), analyzer-only: precision
+  1.0, recall 0.692 (9/13 after adding Ruff SIM115 and DevPilot rule DP001, which were chosen after
+  looking at misses on this same set; 7/13 before), no false positives on the clean cases. In
+  label-blind runs the local model `qwen2.5-coder:3b` found **0/13** on its own in all 6 runs, and
+  combined runs matched analyzer-only results. Claude was not run. Full report and caveats:
   [docs/evaluation.md](docs/evaluation.md).
 
 ## Known limitations
 
-- Static analysis covers Python only. Other languages are indexed and searchable, and the LLM can
-  review them, but no analyzer runs on them.
-- The LLM path is tested against recorded/mocked responses only. Neither the Anthropic API nor a
-  real Ollama model has been run in this environment yet.
-- GitHub integration is tested with a mocked HTTP transport; it has not been run against github.com.
-- The benchmark is small and entirely synthetic, and one analyzer setting was tuned on it.
-- Search is lexical (`LIKE`), fine for small repositories, not for very large ones.
+- **The local model finds little.** `qwen2.5-coder:3b` often returns no findings, even when it is
+  shown the code an analyzer flagged; a larger model may do better but has not been measured.
+  "No findings" never means the code was proven defect-free, and the review page says so.
+- **Context coverage.** The LLM sees what fits the context budget: whole files first, then
+  line-numbered excerpts of larger files (around analyzer findings and the start of the file).
+  Code outside those excerpts is not reviewed by the model; the review page reports the coverage.
+- **Analyzer labels are conservative.** Only Ruff rules listed as likely defects are labeled
+  `bug`; any other Ruff rule is labeled `maintainability`, which can under-state an occasional
+  real defect. Static analysis covers Python only; other languages are indexed and searchable,
+  and only the LLM reviews them.
+- **Test suggestions are mostly test gaps.** Complete tests are generated only from docstring
+  examples or by the model; DevPilot cannot infer expected results, and it never runs tests.
+- **Pull requests:** files whose diff GitHub omits (very large changes) cannot be scoped to changed
+  lines, and only the first 300 files of a pull request are read; both are reported on the review.
+- The benchmark is small and synthetic, and two analyzer rules were tuned on it.
+- Search and Q&A retrieval are lexical (keywords, `LIKE`), fine for small repositories, not for
+  very large ones.
 - Single worker by default; repository import and indexing run inside the HTTP request.
 
 More: [docs/security.md](docs/security.md) (remaining risks) and [docs/feature-status.md](docs/feature-status.md).
@@ -184,6 +247,7 @@ More: [docs/security.md](docs/security.md) (remaining risks) and [docs/feature-s
 | [implementation-guide.md](docs/implementation-guide.md) | Module-by-module walkthrough of the actual code |
 | [ai-review-pipeline.md](docs/ai-review-pipeline.md) | Context assembly, prompts, schema, validation, dedupe |
 | [database.md](docs/database.md) | ER diagram, tables, constraints, retention |
+| [backup-restore.md](docs/backup-restore.md) | Backing up PostgreSQL and snapshots, restore drill, recovery |
 | [api-reference.md](docs/api-reference.md) | Every endpoint with examples and errors |
 | [security.md](docs/security.md) | Threat model, trust boundaries, controls, open risks |
 | [testing.md](docs/testing.md) | Test suites, what they verify, gaps, results |

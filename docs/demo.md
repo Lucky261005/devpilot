@@ -32,8 +32,9 @@ stays in your local database).
 4. **Change review.** Back on the repository, keep *Compare two refs* (`HEAD~1`..`HEAD`) and
    start. The change only touches `pricing.py`. Result: **no findings** — the two seeded bugs
    there (`>` instead of `>=`, a dropped last page) are logic errors no analyzer can see. Open
-   *Changed files* for the diff, and *Test suggestions* for the generated pytest skeletons for
-   `apply_discount` and `paginate`.
+   *Changed files* for the diff, and *Test suggestions* for the test gaps DevPilot reports for
+   `apply_discount` and `paginate` (untested functions, with their signatures and the exceptions
+   they raise; DevPilot does not invent expected values).
    This is the honest motivation for the LLM stage.
 5. **LLM stage (only with `ANTHROPIC_API_KEY` set).** Tick *Allow LLM review*, start the same
    change review with *Include LLM review*. The run summary shows model, tokens, latency and how

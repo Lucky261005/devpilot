@@ -22,13 +22,21 @@ export function LogoMark({ size = 32 }: { size?: number }) {
   )
 }
 
-export function Logo({ size = 32, className = '' }: { size?: number; className?: string }) {
+export function Logo({
+  size = 32,
+  className = '',
+  wordmarkClassName = '',
+}: {
+  size?: number
+  className?: string
+  wordmarkClassName?: string
+}) {
   return (
     <span
       className={`logo inline-flex items-center gap-3 font-semibold tracking-tight ${className}`}
     >
       <LogoMark size={size} />
-      DevPilot
+      <span className={wordmarkClassName}>DevPilot</span>
     </span>
   )
 }

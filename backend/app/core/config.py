@@ -8,6 +8,8 @@ from urllib.parse import urlparse
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
+REGISTRATION_MODES = ("open", "invite", "closed")
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="DEVPILOT_", env_file=".env", extra="ignore")
@@ -18,7 +20,14 @@ class Settings(BaseSettings):
     # Fernet key used to encrypt GitHub tokens at rest. Required outside development.
     secret_key: str = ""
     cookie_secure: bool = False
+    # Strict-Transport-Security max-age for API responses outside development. 0 = not sent.
+    # Set it only when every request reaches DevPilot over HTTPS (TLS terminated in front of nginx).
+    hsts_seconds: int = Field(default=0, ge=0)
     frontend_origin: str = "http://localhost:5173"
+    # Who may create accounts: "open", "invite" (needs invite_code) or "closed". Unset or empty:
+    # "open" in development, "invite" everywhere else. Existing accounts can always sign in.
+    registration: str | None = None
+    invite_code: str = ""
 
     # Ingestion limits
     max_upload_bytes: int = 50 * 1024 * 1024
@@ -56,7 +65,19 @@ class Settings(BaseSettings):
     # Background jobs
     run_worker_in_process: bool = True
     job_timeout_s: int = 600
-    reviews_per_hour: int = 30
+    reviews_per_hour: int = 30  # per user per rolling hour (database: review_quota_events)
+    # Installation-wide cap on new review jobs per rolling hour, all users and API processes
+    # together (database-backed). Protects the GPU / LLM budget from many-account abuse.
+    reviews_global_per_hour: int = Field(default=60, ge=1)
+
+    @field_validator("registration", mode="before")
+    @classmethod
+    def _check_registration(cls, v: object) -> object:
+        if v is None or (isinstance(v, str) and not v.strip()):
+            return None
+        if not isinstance(v, str) or v.strip().lower() not in REGISTRATION_MODES:
+            raise ValueError(f"DEVPILOT_REGISTRATION must be one of {', '.join(REGISTRATION_MODES)}")
+        return v.strip().lower()
 
     @field_validator("allowed_local_roots", mode="before")
     @classmethod
@@ -92,13 +113,29 @@ class Settings(BaseSettings):
         return self.llm_max_context_chars
 
     @property
+    def registration_mode(self) -> str:
+        return self.registration or ("open" if self.env == "development" else "invite")
+
+    @property
     def github_configured(self) -> bool:
         return bool(self.github_client_id and self.github_client_secret)
 
 
+def check_environment(s: Settings) -> Settings:
+    """Refuse unsafe settings outside development. Called at startup (API lifespan, worker)."""
+    if s.env == "development":
+        return s
+    if not s.secret_key:
+        raise RuntimeError("DEVPILOT_SECRET_KEY must be set outside development")
+    if not s.cookie_secure:
+        # Not forced on silently: an operator must serve over HTTPS and say so.
+        raise RuntimeError(
+            f"DEVPILOT_COOKIE_SECURE must be true when DEVPILOT_ENV={s.env!r}: session cookies "
+            "must only travel over HTTPS. Serve DevPilot over HTTPS and set DEVPILOT_COOKIE_SECURE=true."
+        )
+    return s
+
+
 @lru_cache
 def get_settings() -> Settings:
-    s = Settings()
-    if s.env != "development" and not s.secret_key:
-        raise RuntimeError("DEVPILOT_SECRET_KEY must be set outside development")
-    return s
+    return check_environment(Settings())

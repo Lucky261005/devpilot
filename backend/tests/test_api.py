@@ -29,14 +29,13 @@ def test_auth_flow_and_session_cookie():
     c = make_client()
     assert c.get("/api/auth/me").status_code == 401
     r = c.post("/api/auth/register", json={"email": "Flow@Example.com", "password": "long-enough-pw"})
-    assert r.status_code == 201 and r.json()["email"] == "flow@example.com"
+    assert r.status_code == 202 and "set-cookie" not in r.headers  # registering does not sign in
+    assert c.get("/api/auth/me").status_code == 401
+    r = c.post("/api/auth/login", json={"email": "flow@example.com", "password": "long-enough-pw"})
+    assert r.status_code == 200 and r.json()["email"] == "flow@example.com"  # email normalized
     cookie = r.headers["set-cookie"].lower()
     assert "httponly" in cookie and "samesite=lax" in cookie
     assert c.get("/api/auth/me").status_code == 200
-    assert (
-        c.post("/api/auth/register", json={"email": "flow@example.com", "password": "long-enough-pw"}).status_code
-        == 409
-    )
     assert c.post("/api/auth/logout").status_code == 204
     assert c.get("/api/auth/me").status_code == 401
     assert (
